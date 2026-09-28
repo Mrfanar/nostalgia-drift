@@ -2664,12 +2664,21 @@ addEventListener('resize', resize); resize();
 const clock = new THREE.Clock();
 let accT = 0;
 const STEP = 1 / 120;
-let lastFrameTs = -1e9;
+// frame pacing: measure the screen's real refresh period; on 120/144 Hz draw every 2nd refresh (60/72 fps),
+// on 60/90 Hz draw every refresh. Time steps come from the vsync timestamps, so motion is even at any rate.
+const PACE = { raw: -1, last: -1, per: 16.7, d: [], n: 0, time: 0 };
 renderer.setAnimationLoop(ts => {
-  // 90/120 Hz screens (the installed app runs at the full refresh rate): draw every other vsync for an even ~60 fps instead of an uneven 70-90
-  if (ts - lastFrameTs < 12.5) return;
-  lastFrameTs = ts;
-  const dt = Math.min(clock.getDelta(), 0.05), time = clock.elapsedTime;
+  if (PACE.raw > 0) {
+    const d = ts - PACE.raw;
+    if (d > 4 && d < 40) { PACE.d.push(d); if (PACE.d.length > 90) PACE.d.shift(); }
+    if (++PACE.n % 30 === 0 && PACE.d.length > 20) { const a = PACE.d.slice().sort((x, y) => x - y); PACE.per = a[a.length >> 2]; }   // fast quartile ≈ the vsync period
+  }
+  PACE.raw = ts;
+  const skip = PACE.per < 10.5 ? 2 : 1;
+  if (PACE.last > 0 && (ts - PACE.last) < PACE.per * (skip - 0.5)) return;
+  const dt = PACE.last > 0 ? Math.min((ts - PACE.last) / 1000, 0.05) : 1 / 60;
+  PACE.last = ts; PACE.time += dt;
+  const time = PACE.time;
   if (!playing && msgTimer > 0) { msgTimer -= dt; if (msgTimer <= 0) msgEl.hidden = true; }
   if (player) {
     if (playing) {
