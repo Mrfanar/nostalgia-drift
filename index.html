@@ -2389,7 +2389,9 @@ function startGame() {
   NET.myFin = null; NET.rFin = null;
   setScreen('play'); playing = true; restart(); startIntro();
   SND.start();
-  try { document.documentElement.requestFullscreen?.({ navigationUI: 'hide' })?.catch(() => {}); } catch (e) {}
+  // in a browser tab go fullscreen; the installed app keeps Android's system buttons on screen so it can be minimised easily
+  const installed = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches;
+  if (!installed) try { document.documentElement.requestFullscreen?.({ navigationUI: 'hide' })?.catch(() => {}); } catch (e) {}
   try { window.screen.orientation?.lock?.('landscape')?.catch(() => {}); } catch (e) {}
 }
 goBtn.addEventListener('click', () => {
