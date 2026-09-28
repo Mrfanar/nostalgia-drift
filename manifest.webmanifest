@@ -4,7 +4,7 @@
   "description": "Дрифт на S15: MrFanar и VIRUS",
   "start_url": "./",
   "scope": "./",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "landscape",
   "background_color": "#141519",
   "theme_color": "#141519",
