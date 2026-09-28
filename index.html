@@ -2662,14 +2662,18 @@ addEventListener('resize', resize); resize();
 const clock = new THREE.Clock();
 let accT = 0;
 const STEP = 1 / 120;
-renderer.setAnimationLoop(() => {
+let lastFrameTs = -1e9;
+renderer.setAnimationLoop(ts => {
+  // 90/120 Hz screens (the installed app runs at the full refresh rate): draw every other vsync for an even ~60 fps instead of an uneven 70-90
+  if (ts - lastFrameTs < 12.5) return;
+  lastFrameTs = ts;
   const dt = Math.min(clock.getDelta(), 0.05), time = clock.elapsedTime;
   if (!playing && msgTimer > 0) { msgTimer -= dt; if (msgTimer <= 0) msgEl.hidden = true; }
   if (player) {
     if (playing) {
       trackUpdate(dt);
       if (TR.countdown > 0) accT = 0;
-      else { accT += dt; while (accT >= STEP) { physicsStep(STEP); accT -= STEP; } }
+      else { const n = Math.max(1, Math.ceil(dt / STEP - 1e-6)), h = dt / n; for (let i = 0; i < n; i++) physicsStep(h); }   // equal substeps every frame: no 1-2-1 step jitter
       score(dt);
       carVisuals(dt, time);
       if (NET.on) { remoteVisuals(dt, time); netTick(time); }
