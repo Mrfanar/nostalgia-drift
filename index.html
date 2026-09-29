@@ -39,13 +39,23 @@
   .score .meta{display:flex;gap:10px;justify-content:center;align-items:center;font-size:12px;color:#c9cad1;font-variant-numeric:tabular-nums}
   .score .meta b{font-weight:600;color:#fff}
   .score .run.lost{color:#ff5a5a}
-  .topright{display:flex;gap:8px;pointer-events:auto}
+  .topright{display:flex;gap:8px;pointer-events:auto;margin-left:auto}
+  .hud{z-index:12}
   .iconbtn{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer}
   .iconbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   .iconbtn[aria-pressed="true"]{background:rgba(255,255,255,.2)}
-  .sound{position:fixed;top:calc(env(safe-area-inset-top,0px) + 62px);right:16px;width:min(280px,calc(100vw - 32px));display:flex;flex-direction:column;gap:12px;padding:14px 16px;border-radius:14px;background:rgba(14,15,19,.9);border:1px solid var(--line);z-index:5}
-  .sound h2{margin:0;font:400 15px 'Russo One',sans-serif;letter-spacing:.04em}
-  .sound label{display:grid;grid-template-columns:92px minmax(0,1fr) 34px;align-items:center;gap:8px;font-size:13px}
+  .sound{position:fixed;inset:0;z-index:30;background:#08090c;display:flex;flex-direction:column;
+    padding:calc(env(safe-area-inset-top,0px) + 14px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 14px) max(16px,env(safe-area-inset-left,0px))}
+  .shdr{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;max-width:760px;margin:0 auto}
+  .shdr h1{margin:0;font:400 clamp(20px,3.6vw,28px) 'Russo One',sans-serif;letter-spacing:.1em;text-transform:uppercase}
+  .stabs{display:flex;gap:6px;width:100%;max-width:760px;margin:12px auto 0;border-bottom:1px solid var(--line)}
+  .stabs button{flex:1;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);font:400 clamp(14px,2.4vw,18px) 'Russo One',sans-serif;letter-spacing:.06em;padding:10px 6px;min-height:46px;cursor:pointer}
+  .stabs button[aria-selected="true"]{color:#fff;border-bottom-color:var(--gold)}
+  .stabs button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+  .spage{width:100%;max-width:760px;margin:0 auto;padding:16px 2px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;min-height:0}
+  .shint{font-size:12px;color:var(--muted);line-height:1.4;margin-top:-6px}
+  .sound h2{margin:0;font:400 16px 'Russo One',sans-serif;letter-spacing:.04em}
+  .sound label{display:grid;grid-template-columns:110px minmax(0,1fr) 40px;align-items:center;gap:10px;font-size:14px}
   .sound output{font-variant-numeric:tabular-nums;color:var(--muted);text-align:right;font-size:12px}
   .sound input[type=range]{width:100%;accent-color:var(--gold);height:28px}
   .sound .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -56,17 +66,22 @@
   .pad{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;gap:14px;align-items:flex-end}
   .pad.left{left:max(16px, env(safe-area-inset-left,0px))}
   .pad.right{right:max(16px, env(safe-area-inset-right,0px))}
-  .ctl{width:clamp(78px,11vw,104px);height:clamp(78px,11vw,104px);border-radius:22px;border:2px solid rgba(255,255,255,.28);
-    background:rgba(12,13,17,.55);color:var(--text);font:700 13px 'Rubik',sans-serif;letter-spacing:.04em;
+  .ctl{width:clamp(78px,11vw,104px);height:clamp(78px,11vw,104px);border-radius:22px;border:2px solid rgba(255,255,255,.55);
+    background:rgba(255,255,255,.13);color:#fff;font:700 13px 'Rubik',sans-serif;letter-spacing:.04em;text-shadow:0 1px 3px rgba(0,0,0,.45);
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;touch-action:none;cursor:pointer;
-    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:transform .06s,background .06s}
-  .ctl svg{width:34px;height:34px}
-  .ctl.on{transform:scale(.94);background:rgba(255,255,255,.22)}
-  .ctl.brake.on{background:rgba(224,38,43,.55)}
-  .ctl.hand.on{background:rgba(255,210,63,.5);color:#141519}
-  .ctl.hand{border-color:rgba(255,210,63,.55)}
-  .ctl.brake{border-color:rgba(224,38,43,.6)}
-  .ctl.gas{border-color:rgba(43,191,122,.7);height:calc(clamp(78px,11vw,104px) * 1.25)}
+    transition:transform .06s,background .06s}
+  .ctl svg{width:34px;height:34px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+  .ctl.on{transform:scale(.94);background:rgba(255,255,255,.42);border-color:#fff}
+  .ctl.gas{height:calc(clamp(78px,11vw,104px) * 2 + 14px)}
+  .pad .col{display:flex;gap:14px;flex-direction:row-reverse}
+  body.gasManual .pad .col{flex-direction:column}
+  .wheel{--wd:calc(clamp(78px,11vw,104px) * 1.75);width:var(--wd);height:var(--wd);border-radius:50%;touch-action:none;position:relative;cursor:grab}
+  .wheel svg{width:100%;height:100%;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+  .wheel.on svg{filter:drop-shadow(0 0 8px rgba(255,255,255,.5))}
+  body:not(.steerWheel) .wheel,body.steerWheel .pad.right .ctl{display:none}
+  body.steerWheel .tach{bottom:calc(env(safe-area-inset-bottom,0px) + 30px + clamp(78px,11vw,104px) * 1.75)}
+  .pausetag{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);font:400 clamp(26px,5vw,44px) 'Russo One',sans-serif;letter-spacing:.2em;color:#fff;
+    text-shadow:0 0 6px #fff,0 0 18px #9a5cff;pointer-events:none;z-index:4}
   .ctl.gas.on{background:rgba(43,191,122,.5)}
   .seg2{display:flex;gap:4px}
   .seg2 button{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:10px;padding:8px 12px;font:600 13px 'Rubik',sans-serif;cursor:pointer;min-height:40px}
@@ -120,7 +135,7 @@
   .screen .credit{margin-top:10px;text-align:center;max-width:640px}
   .shead{font:400 clamp(18px,3.4vw,28px) 'Russo One',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.9)}
   .shead.small{font-size:14px;letter-spacing:.16em;color:#c9cad1;text-align:left;margin-bottom:8px}
-  .back{position:absolute;left:calc(max(16px,env(safe-area-inset-left,0px)) + 58px);top:calc(env(safe-area-inset-top,0px) + 14px);background:rgba(10,11,15,.55);border:1px solid var(--line);color:#fff;border-radius:12px;min-height:44px;padding:0 14px;font:600 14px 'Rubik',sans-serif;cursor:pointer}
+  .back{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 14px);background:rgba(10,11,15,.55);border:1px solid var(--line);color:#fff;border-radius:12px;min-height:44px;padding:0 14px;font:600 14px 'Rubik',sans-serif;cursor:pointer}
   .carpick{margin-top:auto;width:100%;max-width:980px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .carpick button{background:none;border:0;border-bottom:2px solid rgba(255,255,255,.18);color:#fff;font:400 clamp(20px,3.6vw,30px) 'Russo One',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;text-shadow:0 2px 12px rgba(0,0,0,.9)}
   .carpick button small{font:500 12px 'Rubik',sans-serif;letter-spacing:.1em;color:#c9cad1}
@@ -227,7 +242,7 @@
     <div class="meta"><span>очки <b id="total">0</b></span><span class="opp" id="opp" hidden></span><span id="trackInfo" hidden><span id="tTime">0:00.0</span><span id="tProg">0%</span><span class="zone" id="tZone"></span></span></div>
   </div>
   <div class="topright">
-    <button class="iconbtn" id="sndBtn" aria-label="Настройки: звук и камера" aria-expanded="false" aria-controls="sound">
+    <button class="iconbtn" id="sndBtn" aria-label="Настройки" aria-expanded="false" aria-controls="sound">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </button>
     <button class="iconbtn" id="toMenu" aria-label="Выйти в главное меню">
@@ -238,25 +253,47 @@
     </button>
   </div>
 </div>
-<div class="sound" id="sound" hidden>
-  <div class="row"><h2>Газ</h2><div class="seg2" role="group" aria-label="Газ"><button id="gasAuto" aria-pressed="true">Авто</button><button id="gasManual" aria-pressed="false">Ручной</button></div></div>
-  <h2>Камера</h2>
-  <label for="vCam">Дальность<input type="range" id="vCam" min="0" max="100" value="50"><output for="vCam">50</output></label>
-  <div class="row"><h2>Звук</h2><button class="mute" id="mute" aria-pressed="false">Выключить</button></div>
-  <label for="vMaster">Общая<input type="range" id="vMaster" min="0" max="100" value="80"><output for="vMaster">80</output></label>
-  <label for="vEngine">Двигатель<input type="range" id="vEngine" min="0" max="100" value="80"><output for="vEngine">80</output></label>
-  <label for="vTyres">Резина<input type="range" id="vTyres" min="0" max="100" value="70"><output for="vTyres">70</output></label>
-  <label for="vExhaust">Выхлоп<input type="range" id="vExhaust" min="0" max="100" value="80"><output for="vExhaust">80</output></label>
+<div class="sound" id="sound" role="dialog" aria-modal="true" aria-labelledby="setTitle" hidden>
+  <div class="shdr"><h1 id="setTitle">Настройки</h1>
+    <button class="iconbtn" id="setClose" aria-label="Закрыть настройки"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="stabs" role="tablist" aria-label="Разделы настроек">
+    <button role="tab" id="tabSound" aria-controls="pgSound" aria-selected="true">Звук</button>
+    <button role="tab" id="tabScreen" aria-controls="pgScreen" aria-selected="false">Экран</button>
+    <button role="tab" id="tabCtl" aria-controls="pgCtl" aria-selected="false">Управление</button>
+  </div>
+  <div class="spage" id="pgSound" role="tabpanel" aria-labelledby="tabSound">
+    <div class="row"><h2>Звук</h2><button class="mute" id="mute" aria-pressed="false">Выключить</button></div>
+    <label for="vMaster">Общая<input type="range" id="vMaster" min="0" max="100" value="80"><output for="vMaster">80</output></label>
+    <label for="vEngine">Двигатель<input type="range" id="vEngine" min="0" max="100" value="80"><output for="vEngine">80</output></label>
+    <label for="vTyres">Резина<input type="range" id="vTyres" min="0" max="100" value="70"><output for="vTyres">70</output></label>
+    <label for="vExhaust">Выхлоп<input type="range" id="vExhaust" min="0" max="100" value="80"><output for="vExhaust">80</output></label>
+  </div>
+  <div class="spage" id="pgScreen" role="tabpanel" aria-labelledby="tabScreen" hidden>
+    <div class="row"><h2>Частота кадров</h2><div class="seg2" role="group" aria-label="Частота кадров"><button id="fps30" aria-pressed="false">30</button><button id="fps60" aria-pressed="false">60</button><button id="fpsFree" aria-pressed="true">Свободно</button></div></div>
+    <div class="shint">30 — телефон меньше греется, батарея держит дольше. 60 — ровные 60 кадров (на экране 90 Гц получится ровно 45). Свободно — под частоту экрана: 60 или 90, на 120 Гц — 60; не ниже 45.</div>
+    <h2>Камера</h2>
+    <label for="vCam">Дальность<input type="range" id="vCam" min="0" max="100" value="50"><output for="vCam">50</output></label>
+  </div>
+  <div class="spage" id="pgCtl" role="tabpanel" aria-labelledby="tabCtl" hidden>
+    <div class="row"><h2>Газ</h2><div class="seg2" role="group" aria-label="Газ"><button id="gasAuto" aria-pressed="true">Авто</button><button id="gasManual" aria-pressed="false">Ручной</button></div></div>
+    <div class="shint">Ручной: слева кнопка газа, рядом ручник над тормозом.</div>
+    <div class="row"><h2>Руление</h2><div class="seg2" role="group" aria-label="Руление"><button id="stBtns" aria-pressed="true">Кнопки</button><button id="stWheel" aria-pressed="false">Руль</button></div></div>
+    <div class="shint">Руль крутится пальцем и сам возвращается в центр.</div>
+    <div class="row"><h2>Физика</h2><div class="seg2" role="group" aria-label="Физика"><button id="phys1" aria-pressed="true">1</button><button id="phys2" aria-pressed="false">2</button></div></div>
+    <div class="shint">1 — с помощником: в заносе колёса сами контрят, кнопки задают угол. 2 — прямой руль: колёса повторяют руль один в один, контрить нужно самому (лучше всего с рулём).</div>
+  </div>
 </div>
 <div class="rotate"><span>Поверни телефон горизонтально — так удобнее</span></div>
 
 <div class="pad left">
-  <button class="ctl brake" data-key="brake" aria-label="Тормоз">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v5"/><circle cx="12" cy="16" r=".5"/></svg>ТОРМОЗ</button>
-  <button class="ctl hand" data-key="hand" aria-label="Ручник">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20l9-14"/><circle cx="17" cy="4.5" r="2"/><path d="M4 20h7"/></svg>РУЧНИК</button>
   <button class="ctl gas" data-key="gas" aria-label="Газ" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg>ГАЗ</button>
+  <div class="col">
+    <button class="ctl hand" data-key="hand" aria-label="Ручник">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20l9-14"/><circle cx="17" cy="4.5" r="2"/><path d="M4 20h7"/></svg>РУЧНИК</button>
+    <button class="ctl brake" data-key="brake" aria-label="Тормоз">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v5"/><circle cx="12" cy="16" r=".5"/></svg>ТОРМОЗ</button>
+  </div>
 </div>
 <div class="tach" id="tach" aria-hidden="true"><div class="bar" id="tachBar"></div><div class="ticks"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><b>8</b></div></div>
 <div class="pad right">
@@ -264,7 +301,21 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
   <button class="ctl" data-key="right" aria-label="Руль вправо">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  <div class="wheel" id="wheel" role="slider" aria-label="Руль" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0">
+    <svg viewBox="-100 -100 200 200" id="wheelSvg">
+      <circle r="88" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="22"/>
+      <circle r="99" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2"/>
+      <circle r="77" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2"/>
+      <path d="M-8 -99 h16 v22 h-16z" fill="rgba(255,255,255,.9)"/>
+      <path d="M-78 6 L-26 14 L-20 -4 L-74 -18 Z" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M78 6 L26 14 L20 -4 L74 -18 Z" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M-10 24 L10 24 L14 78 L-14 78 Z" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linejoin="round"/>
+      <circle r="28" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.6)" stroke-width="2"/>
+      <circle r="10" fill="rgba(255,255,255,.75)"/>
+    </svg>
+  </div>
 </div>
+<div class="pausetag" id="pauseTag" hidden>ПАУЗА</div>
 
 <div class="screen" id="scrTitle">
   <div class="stitle">NOSTALGIA DRIFT</div>
@@ -571,6 +622,82 @@ if (vLP.z < -1.0) {
   return m;
 }
 
+// ---------- tyres: semi-slick tread and white sidewall lettering, drawn in the tyre's own coordinates ----------
+let TYRE_TEX_ = null;
+const tyreTex = () => TYRE_TEX_ ??= (() => {   // built on first use, after the fonts have loaded
+  // tread (1 = rubber, 0 = groove): around the tyre left→right, across the tread top→bottom
+  const t = document.createElement('canvas'); t.width = 1024; t.height = 256;
+  const g = t.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 1024, 256);
+  g.strokeStyle = '#000'; g.lineCap = 'round'; g.lineJoin = 'round';
+  g.fillStyle = '#000'; g.fillRect(0, 131, 1024, 10);                          // straight centre groove
+  for (let i = -1; i <= 8; i++) {
+    const x = i * 128;
+    // outer half: long swept grooves with a kink, like a track-day semi-slick
+    g.lineWidth = 11; g.beginPath(); g.moveTo(x + 6, 26); g.lineTo(x + 34, 38); g.quadraticCurveTo(x + 78, 60, x + 96, 112); g.stroke();
+    // inner half: shorter slashes
+    g.lineWidth = 9; g.beginPath(); g.moveTo(x + 60, 162); g.quadraticCurveTo(x + 92, 176, x + 118, 214); g.stroke();
+  }
+  const tread = new THREE.CanvasTexture(t); tread.wrapS = THREE.RepeatWrapping; tread.colorSpace = THREE.NoColorSpace; tread.anisotropy = 4;
+  // sidewall lettering (alpha), twice around the tyre
+  const s = document.createElement('canvas'); s.width = 2048; s.height = 128;
+  const h = s.getContext('2d'); h.fillStyle = '#fff'; h.textBaseline = 'middle'; h.textAlign = 'center';
+  // two big + two small inscriptions, spaced evenly around the tyre
+  const parts = [["400 70px 'Russo One', sans-serif", 'NOSTALGIA'], ["400 40px 'Russo One', sans-serif", 'DRIFT SPEC · 265/35 R18']];
+  const wid = parts.map(([f, t]) => { h.font = f; return h.measureText(t).width; });
+  const gap = (1024 - wid[0] - wid[1]) / 2;
+  for (let k = 0; k < 2; k++) {
+    let x = k * 1024 + gap / 2;
+    parts.forEach(([f, t], i) => { h.font = f; h.fillText(t, x + wid[i] / 2, 66); x += wid[i] + gap; });
+  }
+  const side = new THREE.CanvasTexture(s); side.wrapS = THREE.RepeatWrapping; side.anisotropy = 4;
+  return { tread, side };
+})();
+function tyreMaterial(o) {
+  const m = o.material.clone();
+  m.color.set('#1b1b1d'); m.metalness = 0; m.roughness = 0.9; m.userData.perCar = true;
+  // the tyre's axle is its thinnest axis; centre and radii come from the mesh itself
+  const geo = o.geometry; geo.computeBoundingBox();
+  const bb = geo.boundingBox, c = bb.getCenter(new THREE.Vector3()), sz = bb.getSize(new THREE.Vector3());
+  const ax = sz.x <= sz.y && sz.x <= sz.z ? 0 : sz.y <= sz.z ? 1 : 2;
+  const axis = new THREE.Vector3().setComponent(ax, 1);
+  const R = Math.max(sz.getComponent((ax + 1) % 3), sz.getComponent((ax + 2) % 3)) / 2, W = sz.getComponent(ax) / 2;
+  let rin = R; const pos = geo.attributes.position, p = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) { p.fromBufferAttribute(pos, i).sub(c); const a = p.dot(axis); rin = Math.min(rin, Math.sqrt(Math.max(0, p.lengthSq() - a * a))); }
+  const out = Math.sign(c.getComponent(ax)) || 1;          // the outer face looks away from the car's centre line
+  // two unit vectors across the wheel face; their order sets which way the letters run
+  const e1 = new THREE.Vector3().setComponent((ax + 1) % 3, 1), e2 = new THREE.Vector3().setComponent((ax + 2) % 3, 1);
+  const prev = m.onBeforeCompile;
+  m.onBeforeCompile = (sh, r) => {
+    if (prev) prev.call(m, sh, r);
+    Object.assign(sh.uniforms, {
+      uTC: { value: c }, uTA: { value: axis }, uTE1: { value: e1 }, uTE2: { value: e2 },
+      uTR: { value: new THREE.Vector4(R, W, rin, out) }, uTread: { value: tyreTex().tread }, uSide: { value: tyreTex().side } });
+    sh.vertexShader = 'varying vec3 vTP;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvTP = position;');
+    sh.fragmentShader = 'varying vec3 vTP;\nuniform vec3 uTC, uTA, uTE1, uTE2;\nuniform vec4 uTR;\nuniform sampler2D uTread, uSide;\n' +
+      sh.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>
+{
+  vec3 d = vTP - uTC;
+  float a = dot(d, uTA), y = dot(d, uTE1), z = dot(d, uTE2);
+  float r = length(vec2(y, z)), th = atan(z, y) / 6.2831853;
+  float R = uTR.x, W = uTR.y, rin = uTR.z, side = uTR.w;
+  float ax = a / W;
+  if (r > R * 0.965 && abs(ax) < 0.86) {
+    float g = texture2D(uTread, vec2(th * 3.0, ax * 0.5 + 0.5)).r;
+    diffuseColor.rgb = vec3(0.075) * mix(0.12, 1.0, g);   // scuffed grey tread, near-black grooves
+  } else if (ax * side > 0.35) {
+    float v = (r - rin) / (R - rin);
+    float band = (v - 0.26) / 0.46;
+    if (band > 0.0 && band < 1.0) {
+      float t = texture2D(uSide, vec2(-side * th, band)).a;
+      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.78), t);
+    }
+  }
+}`);
+  };
+  m.customProgramCacheKey = () => 'tyre-r888';
+  return m;
+}
+
 let base;
 function makeCar(opt) {
   const car = base.clone(true);
@@ -583,7 +710,7 @@ function makeCar(opt) {
     if (n === 'CWestphong1SG1') { o.material = paintMaterial(opt, true); bodyMesh = o; }
     else if (n === 'CWestphong16SG1') { o.material = paintMaterial(opt, false); }
     else if (n === 'NCaliperGlossPaint1') { o.material = o.material.clone(); o.material.color.set(opt.caliper); }
-    else if (n === 'NTire1A1') { o.material = o.material.clone(); o.material.color.set('#1b1b1d'); o.material.metalness = 0; o.material.roughness = 0.9; }
+    else if (n === 'NTire1A1') { o.material = tyreMaterial(o); }
     else if (n.startsWith('WhSubaru')) { o.material = o.material.clone(); o.userData.rim = true; }
     else if (n === 'CWestphong7SG1') { o.visible = false; }   // model's own badges (make, model name) on the trunk and nose
     else if (n === 'CWestphong5SG1' || n === 'CWestphong13SG1') { o.material = lampMaterial(o.material); (opt._lamps ??= []).push(o.material); }
@@ -1305,11 +1432,52 @@ function syncGas() {
   document.getElementById('gasAuto').setAttribute('aria-pressed', String(!manualGas));
   document.getElementById('gasManual').setAttribute('aria-pressed', String(manualGas));
   document.querySelector('.ctl.gas').hidden = !manualGas;
+  document.body.classList.toggle('gasManual', manualGas);        // gas | handbrake over brake
   try { localStorage.setItem('drift-gas', manualGas ? 'manual' : 'auto'); } catch (e) {}
 }
+// steering: two buttons or an on-screen wheel (analog)
+let steerWheel = false;
+try { steerWheel = localStorage.getItem('drift-steer') === 'wheel'; } catch (e) {}
+const WH = { ang: 0, val: 0, held: false, pid: null, a0: 0, p0: 0, MAX: 135 };
+function syncSteer() {
+  document.getElementById('stBtns').setAttribute('aria-pressed', String(!steerWheel));
+  document.getElementById('stWheel').setAttribute('aria-pressed', String(steerWheel));
+  document.body.classList.toggle('steerWheel', steerWheel);
+  input.left = input.right = false; WH.ang = 0; WH.val = 0; WH.held = false; wheelDraw();
+  try { localStorage.setItem('drift-steer', steerWheel ? 'wheel' : 'buttons'); } catch (e) {}
+}
+const wheelEl = document.getElementById('wheel'), wheelSvg = document.getElementById('wheelSvg');
+function wheelDraw() { wheelSvg.style.transform = `rotate(${WH.ang.toFixed(1)}deg)`; wheelEl.setAttribute('aria-valuenow', String(Math.round(-WH.val * 100))); }
+const wheelPointerAng = e => { const r = wheelEl.getBoundingClientRect(); return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180 / Math.PI; };
+wheelEl.addEventListener('pointerdown', e => {
+  e.preventDefault(); try { wheelEl.setPointerCapture(e.pointerId); } catch (_) {}
+  WH.held = true; WH.pid = e.pointerId; WH.a0 = WH.ang; WH.p0 = wheelPointerAng(e); wheelEl.classList.add('on');
+});
+wheelEl.addEventListener('pointermove', e => {
+  if (!WH.held || e.pointerId !== WH.pid) return;
+  let d = wheelPointerAng(e) - WH.p0; d = ((d + 540) % 360) - 180;          // shortest turn since the last event
+  WH.ang = THREE.MathUtils.clamp(WH.a0 + d, -WH.MAX, WH.MAX); WH.a0 = WH.ang; WH.p0 = wheelPointerAng(e);
+});
+for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) wheelEl.addEventListener(ev, () => { WH.held = false; wheelEl.classList.remove('on'); });
+function wheelUpdate(dt) {
+  if (!steerWheel) return;
+  if (!WH.held) WH.ang *= Math.exp(-dt * 14);                      // springs back to centre when released
+  const v = -WH.ang / WH.MAX;                                         // turning left (anticlockwise) = +1
+  WH.val = Math.abs(v) < 0.08 ? 0 : Math.sign(v) * Math.min(1, (Math.abs(v) - 0.08) / 0.8);
+  wheelDraw();
+}
+function syncPhys() {
+  document.getElementById('phys1').setAttribute('aria-pressed', String(physMode === 1));
+  document.getElementById('phys2').setAttribute('aria-pressed', String(physMode === 2));
+  try { localStorage.setItem('drift-phys', String(physMode)); } catch (e) {}
+}
+document.getElementById('phys1').addEventListener('click', () => { physMode = 1; syncPhys(); });
+document.getElementById('phys2').addEventListener('click', () => { physMode = 2; syncPhys(); });
+document.getElementById('stBtns').addEventListener('click', () => { steerWheel = false; syncSteer(); });
+document.getElementById('stWheel').addEventListener('click', () => { steerWheel = true; syncSteer(); });
 document.getElementById('gasAuto').addEventListener('click', () => { manualGas = false; syncGas(); });
 document.getElementById('gasManual').addEventListener('click', () => { manualGas = true; syncGas(); });
-syncGas();
+syncGas(); syncSteer();
 document.querySelectorAll('.ctl').forEach(el => {
   const key = el.dataset.key;
   const set = on => { input[key] = on; el.classList.toggle('on', on); };
@@ -1336,30 +1504,41 @@ const G = 9.81, L = P.a + P.b;
 const FZF = P.m * G * P.b / L, FZR = P.m * G * P.a / L;
 function tyre(alpha, C, D) { const B = C / (1.4 * D); return -D * Math.sin(1.4 * Math.atan(B * alpha)); }
 const S = { drifting: false, dir: 0, x: 0, z: 0, yaw: 0, u: 0, v: 0, r: 0, delta: 0, throttle: 0, ax: 0, ay: 0, wheelSpin: 0, rearSlip: 0, hit: false };
+const P2 = { yawDamp: 1.1, maxAng: 0.8, guard: 6, lock: THREE.MathUtils.degToRad(60), frontMu: 0.8, frontC: 0.75, power: 0.8 };
+let physMode = 1;
+try { physMode = localStorage.getItem('drift-phys') === '2' ? 2 : 1; } catch (e) {}
+syncPhys();
 function physicsStep(dt) {
   const sgn = S.u >= 0 ? 1 : -1, uu = Math.max(Math.abs(S.u), 1.5);
   // steering: buttons turn to full lock; with no input the wheels follow the slide (countersteer assist)
-  const steerIn = (input.left ? 1 : 0) - (input.right ? 1 : 0);
+  const btn = (input.left ? 1 : 0) - (input.right ? 1 : 0);
+  const steerIn = btn !== 0 ? btn : steerWheel ? WH.val : 0;          // -1..1 (the wheel is analog)
+  const sAbs = Math.abs(steerIn);
   const vel0 = Math.hypot(S.u, S.v), beta0 = Math.atan2(S.v, Math.max(Math.abs(S.u), 1));
   // "drift mode": once the rear is out, the front wheels countersteer by themselves and the buttons set the angle
   if (!S.drifting && vel0 > 4 && S.u > 0 && Math.abs(beta0) > 0.2) { S.drifting = true; S.dir = Math.sign(beta0); }
   else if (S.drifting && (beta0 * S.dir < 0.07 || vel0 < 3 || S.u < 0)) S.drifting = false;
   let target;
-  if (S.drifting) target = THREE.MathUtils.clamp(beta0 * 0.85 + steerIn * 0.18, -STEER_LOCK, STEER_LOCK);
+  if (physMode === 2) target = steerIn * P2.lock;           // physics 2: the wheel IS the front wheels, no help (angle-kit lock)
+  else if (S.drifting) target = THREE.MathUtils.clamp(beta0 * 0.85 + steerIn * 0.18, -STEER_LOCK, STEER_LOCK);
   else if (steerIn) target = steerIn * STEER_LOCK;
   else target = Math.abs(S.u) > 3 ? THREE.MathUtils.clamp(beta0 * 0.9, -STEER_LOCK, STEER_LOCK) : 0;
-  S.delta += THREE.MathUtils.clamp(target - S.delta, -P.steerRate * dt, P.steerRate * dt);
+  const sRate = physMode === 2 ? 9 : P.steerRate;
+  S.delta += THREE.MathUtils.clamp(target - S.delta, -sRate * dt, sRate * dt);
   const d = S.delta;
   // automatic throttle: full gas up to the speed cap, lifted while braking or on the handbrake
   const lifting = input.brake || input.hand || (manualGas && !input.gas);
-  S.throttle = lifting ? 0 : S.drifting ? THREE.MathUtils.clamp((P.vdrift + 1.5 - vel0) / 2, 0.25, 1) : THREE.MathUtils.clamp((P.vmax + 3 - vel0) / 3, 0, 1);
+  const p2 = physMode === 2;
+  S.throttle = lifting ? 0 : S.drifting && !p2 ? THREE.MathUtils.clamp((P.vdrift + 1.5 - vel0) / 2, 0.25, 1)
+    : S.drifting && p2 && !manualGas ? THREE.MathUtils.clamp((P.vdrift + 2 - vel0) / 2, 0.45, 1)
+    : THREE.MathUtils.clamp((P.vmax + 3 - vel0) / 3, 0, 1);
   const Fdrive = S.throttle * Math.min(P.Fmax, P.Pw / Math.max(S.u, 1));
   const Dr = P.mu * FZR * (input.hand ? 0.38 : 1);
   const Fxr = Math.min(Fdrive, Dr * 1.2);                   // arcade: a bit more push than pure grip allows
-  const DrLat = Dr * (1 - 0.5 * Math.min(1, Fxr / Dr) ** 2);  // wheelspin eats rear side grip -> power oversteer
+  const DrLat = Dr * (1 - (p2 ? P2.power : 0.5) * Math.min(1, Fxr / Dr) ** 2);  // wheelspin eats rear side grip -> power oversteer (physics 2: gas steers the angle)
   const af = Math.atan2(S.v + P.a * S.r, uu) - d * sgn;
   const ar = Math.atan2(S.v - P.b * S.r, uu);
-  const Fyf = tyre(af, P.Cf, P.mu * FZF);
+  const Fyf = p2 ? tyre(af, P.Cf * P2.frontC, P.mu * FZF * P2.frontMu) : tyre(af, P.Cf, P.mu * FZF);
   S.frontSlip = Math.abs(af) * uu;
   const Fyr = tyre(ar, P.Cr, DrLat);
   let Fb = 0;
@@ -1377,10 +1556,10 @@ function physicsStep(dt) {
     const boost = S.throttle * Math.min(1, Math.abs(beta) / 0.45) * THREE.MathUtils.clamp((P.vdrift - vel) / 3, 0, 1) * 4200;
     Fx += boost * S.u / vel; Fy += boost * S.v / vel;
   }
-  if (S.drifting && vel > 3) {
+  if (S.drifting && vel > 3 && physMode === 1) {
     // extra pull toward the inside of the drift so slides fit on a parking lot
     const into = steerIn !== 0 && Math.sign(steerIn) === -S.dir;
-    const k = steerIn === 0 ? 1 : into ? 1.4 : 0.3;
+    const k = steerIn === 0 ? 1 : into ? 1 + 0.4 * sAbs : 1 - 0.7 * sAbs;
     const turn = -S.dir * 2800 * k;
     Fx += turn * -S.v / vel; Fy += turn * S.u / vel;
   }
@@ -1388,12 +1567,18 @@ function physicsStep(dt) {
   S.u += (S.ax + S.v * S.r) * dt;
   S.v += (S.ay - S.u * S.r) * dt;
   S.r += (P.a * Fyf * Math.cos(d) - P.b * Fyr) / P.Iz * dt;
-  if (S.drifting) {
+  if (physMode === 2) {
+    // physics 2: only a light yaw damper keeps the car catchable; the angle is all yours
+    if (vel0 > 3) S.r -= P2.yawDamp * (S.r - S.ay / Math.max(vel0, 1)) * dt;
+    // spin guard: past ~45° of slip the car is pulled back so a held gas doesn't spin you round
+    const over = Math.abs(beta0) - P2.maxAng;
+    if (vel0 > 4 && over > 0) S.r += Math.sign(beta0) * P2.guard * over * dt * 10;
+  } else if (S.drifting) {
     // hold the slide near a target angle: into the drift = deeper, countersteer = shallower, nothing = hold
     const into = steerIn !== 0 && Math.sign(steerIn) === -S.dir;
-    const mag = steerIn === 0 ? 0.55 : into ? 0.9 : 0.22;
+    const mag = steerIn === 0 ? 0.55 : into ? 0.55 + 0.35 * sAbs : 0.55 - 0.33 * sAbs;
     const bt = S.dir * mag;
-    const kp = steerIn !== 0 && !into ? 7 : 20;
+    const kp = steerIn !== 0 && !into ? 20 - 13 * sAbs : 20;
     S.r += (kp * (beta0 - bt) - 6 * (S.r - S.ay / Math.max(vel0, 1))) * dt;
   } else if (steerIn === 0 && vel0 > 3) {
     // no drift, no input: settle the yaw so the car straightens instead of snapping into the opposite slide
@@ -2076,6 +2261,37 @@ const SND = (() => {
   return { start, update, pop, hit, pause, rpm: () => E.rpm };
 })();
 
+// ---- pause: opening the settings during a single-player run freezes the game ----
+let paused = false;
+const pauseTag = document.getElementById('pauseTag');
+function setPaused(on) {
+  on = on && playing && screen === 'play' && !NET.on;
+  if (on === paused) return;
+  paused = on; pauseTag.hidden = !on;
+  if (on) { for (const k in input) input[k] = false; document.querySelectorAll('.ctl.on').forEach(el => el.classList.remove('on')); WH.held = false; SND.pause(); }
+  else SND.start();
+}
+document.getElementById('sndBtn').addEventListener('click', () => { setPaused(!document.getElementById('sound').hidden); if (!playing) SND.pause(); });
+// settings: tabs and the close button
+const TABS = [['tabSound', 'pgSound'], ['tabScreen', 'pgScreen'], ['tabCtl', 'pgCtl']];
+function showTab(id) { for (const [t, pg] of TABS) { document.getElementById(t).setAttribute('aria-selected', String(t === id)); document.getElementById(pg).hidden = t !== id; } }
+for (const [t] of TABS) document.getElementById(t).addEventListener('click', () => showTab(t));
+function closeSettings() {
+  const sp = document.getElementById('sound'), b = document.getElementById('sndBtn');
+  sp.hidden = true; b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-pressed', 'false'); setPaused(false); if (!playing) SND.pause(); b.focus();
+}
+document.getElementById('setClose').addEventListener('click', closeSettings);
+addEventListener('keydown', e => { if (e.code === 'Escape' && !document.getElementById('sound').hidden) { e.stopImmediatePropagation(); closeSettings(); } }, true);
+// frame-rate lock: 30 / 60 / free (screen rate; 120 Hz+ -> 60)
+let fpsMode = 'free';
+try { fpsMode = localStorage.getItem('drift-fps') || 'free'; } catch (e) {}
+function syncFps() {
+  for (const [id, m] of [['fps30', '30'], ['fps60', '60'], ['fpsFree', 'free']]) document.getElementById(id).setAttribute('aria-pressed', String(fpsMode === m));
+  try { localStorage.setItem('drift-fps', fpsMode); } catch (e) {}
+}
+for (const [id, m] of [['fps30', '30'], ['fps60', '60'], ['fpsFree', 'free']]) document.getElementById(id).addEventListener('click', () => { fpsMode = m; syncFps(); });
+syncFps();
+
 // ---- linear tachometer (0–8000 rpm) above the steering buttons ----
 const tachEl = document.getElementById('tach'), tachBar = document.getElementById('tachBar');
 const TACH_SEG = 32, TACH_MAX = 8000;
@@ -2299,6 +2515,8 @@ function placeShowroom() {
 }
 function setScreen(s) {
   screen = s;
+  if (typeof paused !== 'undefined' && paused) setPaused(false);
+  { const sp = document.getElementById('sound'); if (!sp.hidden) { sp.hidden = true; document.getElementById('sndBtn').setAttribute('aria-expanded', 'false'); document.getElementById('sndBtn').setAttribute('aria-pressed', 'false'); } }
   for (const k in scr) scr[k].hidden = k !== s;
   document.body.classList.toggle('menu', s === 'title' || s === 'duo' || s === 'car' || s === 'track');
   document.body.classList.toggle('duo', NET.on);
@@ -2674,14 +2892,18 @@ renderer.setAnimationLoop(ts => {
     if (++PACE.n % 30 === 0 && PACE.d.length > 20) { const a = PACE.d.slice().sort((x, y) => x - y); PACE.per = a[a.length >> 2]; }   // fast quartile ≈ the vsync period
   }
   PACE.raw = ts;
-  const skip = PACE.per < 10.5 ? 2 : 1;
+  const want = fpsMode === '30' ? 1000 / 30 : fpsMode === '60' ? 1000 / 60 : (PACE.per < 10.5 ? PACE.per * 2 : PACE.per);
+  const skip = Math.max(1, Math.round(want / PACE.per));
   if (PACE.last > 0 && (ts - PACE.last) < PACE.per * (skip - 0.5)) return;
   const dt = PACE.last > 0 ? Math.min((ts - PACE.last) / 1000, 0.05) : 1 / 60;
   PACE.last = ts; PACE.time += dt;
   const time = PACE.time;
   if (!playing && msgTimer > 0) { msgTimer -= dt; if (msgTimer <= 0) msgEl.hidden = true; }
   if (player) {
-    if (playing) {
+    if (playing && paused) {
+      // frozen: nothing moves, the camera stays where it is
+    } else if (playing) {
+      wheelUpdate(dt);
       trackUpdate(dt);
       if (TR.countdown > 0) accT = 0;
       else { const n = Math.max(1, Math.ceil(dt / STEP - 1e-6)), h = dt / n; for (let i = 0; i < n; i++) physicsStep(h); }   // equal substeps every frame: no 1-2-1 step jitter
@@ -2710,8 +2932,9 @@ renderer.setAnimationLoop(ts => {
     for (const k of ['red', 'black']) { const u = cars[k].userData; u.gray.value += (u.grayT - u.gray.value) * Math.min(1, dt * 3); }
     spiralUpdate();
   }
-  if (playing) { SND.update(dt); updateTach(time); }
-  updateSmoke(dt); updateBits(dt); updateExhaust(dt); updateCones(dt);
+  const fdt = paused ? 0 : dt;
+  if (playing && !paused) { SND.update(dt); updateTach(time); }
+  updateSmoke(fdt); updateBits(fdt); updateExhaust(fdt); updateCones(fdt);
   renderer.render(scene, camera);
 });
 load();
