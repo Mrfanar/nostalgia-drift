@@ -54,6 +54,8 @@
   .stabs button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
   .spage{width:100%;max-width:760px;margin:0 auto;padding:16px 2px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;min-height:0}
   .shint{font-size:12px;color:var(--muted);line-height:1.4;margin-top:-6px}
+  .fps{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 58px);z-index:13;pointer-events:none;
+    font:600 11px 'Rubik',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.04em;color:#3dff7a;text-shadow:0 1px 2px rgba(0,0,0,.8)}
   .sound h2{margin:0;font:400 16px 'Russo One',sans-serif;letter-spacing:.04em}
   .sound label{display:grid;grid-template-columns:110px minmax(0,1fr) 40px;align-items:center;gap:10px;font-size:14px}
   .sound output{font-variant-numeric:tabular-nums;color:var(--muted);text-align:right;font-size:12px}
@@ -271,6 +273,8 @@
   <div class="spage" id="pgScreen" role="tabpanel" aria-labelledby="tabScreen" hidden>
     <div class="row"><h2>Частота кадров</h2><div class="seg2" role="group" aria-label="Частота кадров"><button id="fps30" aria-pressed="false">30</button><button id="fps60" aria-pressed="false">60</button><button id="fpsFree" aria-pressed="true">Свободно</button></div></div>
     <div class="shint">30 — телефон меньше греется, батарея держит дольше. 60 — ровные 60 кадров (на экране 90 Гц получится ровно 45). Свободно — под частоту экрана: 60 или 90, на 120 Гц — 60; не ниже 45.</div>
+    <div class="row"><h2>Счётчик FPS</h2><div class="seg2" role="group" aria-label="Счётчик FPS"><button id="fpsOn" aria-pressed="false">Вкл</button><button id="fpsOff" aria-pressed="true">Выкл</button></div></div>
+    <div class="shint">Мелкая зелёная цифра в правом верхнем углу под кнопками: сколько кадров в секунду сейчас.</div>
     <h2>Камера</h2>
     <label for="vCam">Дальность<input type="range" id="vCam" min="0" max="100" value="50"><output for="vCam">50</output></label>
   </div>
@@ -316,6 +320,7 @@
   </div>
 </div>
 <div class="pausetag" id="pauseTag" hidden>ПАУЗА</div>
+<div class="fps" id="fpsEl" aria-hidden="true" hidden>— FPS</div>
 
 <div class="screen" id="scrTitle">
   <div class="stitle">NOSTALGIA DRIFT</div>
@@ -2291,6 +2296,29 @@ function syncFps() {
 }
 for (const [id, m] of [['fps30', '30'], ['fps60', '60'], ['fpsFree', 'free']]) document.getElementById(id).addEventListener('click', () => { fpsMode = m; syncFps(); });
 syncFps();
+// FPS counter (frames actually drawn per second), refreshed twice a second
+let fpsShow = false;
+try { fpsShow = localStorage.getItem('drift-fpsmeter') === 'on'; } catch (e) {}
+const fpsEl = document.getElementById('fpsEl'), FPSM = { n: 0, t0: 0 };
+function syncFpsMeter() {
+  document.getElementById('fpsOn').setAttribute('aria-pressed', String(fpsShow));
+  document.getElementById('fpsOff').setAttribute('aria-pressed', String(!fpsShow));
+  fpsEl.hidden = !fpsShow; FPSM.n = 0; FPSM.t0 = 0;
+  try { localStorage.setItem('drift-fpsmeter', fpsShow ? 'on' : 'off'); } catch (e) {}
+}
+function fpsTick(ts) {
+  if (!fpsShow) return;
+  if (!FPSM.t0) { FPSM.t0 = ts; FPSM.n = 0; return; }
+  FPSM.n++;
+  if (ts - FPSM.t0 >= 500) {
+    const f = Math.round(FPSM.n * 1000 / (ts - FPSM.t0));
+    fpsEl.textContent = f + ' FPS';
+    FPSM.t0 = ts; FPSM.n = 0;
+  }
+}
+document.getElementById('fpsOn').addEventListener('click', () => { fpsShow = true; syncFpsMeter(); });
+document.getElementById('fpsOff').addEventListener('click', () => { fpsShow = false; syncFpsMeter(); });
+syncFpsMeter();
 
 // ---- linear tachometer (0–8000 rpm) above the steering buttons ----
 const tachEl = document.getElementById('tach'), tachBar = document.getElementById('tachBar');
@@ -2896,7 +2924,7 @@ renderer.setAnimationLoop(ts => {
   const skip = Math.max(1, Math.round(want / PACE.per));
   if (PACE.last > 0 && (ts - PACE.last) < PACE.per * (skip - 0.5)) return;
   const dt = PACE.last > 0 ? Math.min((ts - PACE.last) / 1000, 0.05) : 1 / 60;
-  PACE.last = ts; PACE.time += dt;
+  PACE.last = ts; PACE.time += dt; fpsTick(ts);
   const time = PACE.time;
   if (!playing && msgTimer > 0) { msgTimer -= dt; if (msgTimer <= 0) msgEl.hidden = true; }
   if (player) {
