@@ -1,6 +1,6 @@
 // Offline cache for the drift game. Bump VERSION when you upload new files so phones pick them up.
-const VERSION = 'nostalgia-drift-v13';
-const CORE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "s15.b64.txt", "red_front.jpg", "red_rear.jpg", "red_left.jpg", "red_right.jpg", "black_front.jpg", "black_rear.jpg", "black_left.jpg", "black_right.jpg"];
+const VERSION = 'nostalgia-drift-v14';
+const CORE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "s15.b64.txt", "red_front.jpg", "red_rear.jpg", "red_left.jpg", "red_right.jpg", "black_front.jpg", "black_rear.jpg", "black_left.jpg", "black_right.jpg", "a1_col.jpg", "a1_nor.jpg", "a1_rgh.jpg", "a2_col.jpg", "a2_nor.jpg", "a2_rgh.jpg", "gr_col.jpg", "gr_nor.jpg", "gr_rgh.jpg"];
 self.addEventListener('install', e => {
   // cache: 'reload' skips the browser's HTTP cache, so a new version never stores the old files again
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
