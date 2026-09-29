@@ -54,6 +54,24 @@
   .stabs button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
   .spage{width:100%;max-width:760px;margin:0 auto;padding:16px 2px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;min-height:0}
   .shint{font-size:12px;color:var(--muted);line-height:1.4;margin-top:-6px}
+  .benchhud{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);z-index:14;display:flex;align-items:center;gap:10px;
+    padding:6px 8px 6px 14px;border-radius:14px;background:rgba(0,0,0,.6);border:1px solid var(--line);font:600 13px 'Rubik',sans-serif;color:#fff;white-space:nowrap}
+  .benchhud button{min-height:36px;min-width:0;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:#fff;font:600 13px 'Rubik',sans-serif;cursor:pointer}
+  body.bench .pad,body.bench .tach,body.bench .hud .panel,body.bench .hud .score,body.bench #toMenu,body.bench #reset,body.bench #sndBtn{display:none!important}
+  .benchres{position:fixed;inset:0;z-index:40;background:#08090c;display:flex;justify-content:center;overflow-y:auto;
+    padding:calc(env(safe-area-inset-top,0px) + 14px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 14px) max(16px,env(safe-area-inset-left,0px))}
+  .brbox{width:100%;max-width:760px;margin:auto 0;display:flex;flex-direction:column;gap:10px}
+  .brbox h1{margin:0;font:400 clamp(20px,3.6vw,28px) 'Russo One',sans-serif;letter-spacing:.1em;text-transform:uppercase}
+  .brdev{font-size:12px;color:var(--muted)}
+  .brtab{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  .brtab th{font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:right;padding:6px 6px;border-bottom:1px solid var(--line)}
+  .brtab td{padding:9px 6px;border-bottom:1px solid rgba(255,255,255,.07);text-align:right}
+  .brtab th:first-child,.brtab td:first-child{text-align:left}
+  .brtab td.g-ok{color:#5dffa0} .brtab td.g-mid{color:#ffd23f} .brtab td.g-low{color:#ff7a6a}
+  .brsum{font-size:14px;line-height:1.45}
+  .brhint{font-size:11.5px;color:var(--muted);line-height:1.4}
+  .brhist{font-size:12px;color:var(--muted);line-height:1.5}
+  .brbtns{display:flex;gap:10px} .brbtns .go{min-width:0;flex:1} .brbtns .ghost{flex:1}
   .fps{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 58px);z-index:13;pointer-events:none;
     font:600 11px 'Rubik',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.04em;color:#3dff7a;text-shadow:0 1px 2px rgba(0,0,0,.8)}
   .sound h2{margin:0;font:400 16px 'Russo One',sans-serif;letter-spacing:.04em}
@@ -273,6 +291,11 @@
   <div class="spage" id="pgScreen" role="tabpanel" aria-labelledby="tabScreen" hidden>
     <div class="row"><h2>Частота кадров</h2><div class="seg2" role="group" aria-label="Частота кадров"><button id="fps30" aria-pressed="false">30</button><button id="fps60" aria-pressed="false">60</button><button id="fpsFree" aria-pressed="true">Свободно</button></div></div>
     <div class="shint">30 — телефон меньше греется, батарея держит дольше. 60 — ровные 60 кадров (на экране 90 Гц получится ровно 45). Свободно — под частоту экрана: 60 или 90, на 120 Гц — 60; не ниже 45.</div>
+    <div class="row"><h2>Дым</h2><div class="seg2" role="group" aria-label="Дым"><button id="smkOld" aria-pressed="false">Обычный</button><button id="smkVol" aria-pressed="true">Объёмный</button></div></div>
+    <div class="shint">Объёмный: крупные мягкие клубы и закрутка дыма у задних колёс. Тяжелее для телефона — проверь тестом ниже.</div>
+    <div class="row"><h2>Тест дыма</h2><button class="mute" id="benchRun">Запустить</button></div>
+    <div class="row"><h2>Тест бернаута</h2><button class="mute" id="burnRun">Запустить</button></div>
+    <div class="shint" id="benchHint">Машина сама едет по кругу в заносе около 30 секунд, экран трогать не нужно. Тест замеряет FPS для трёх видов дыма и покажет, что тянет телефон.</div>
     <div class="row"><h2>Счётчик FPS</h2><div class="seg2" role="group" aria-label="Счётчик FPS"><button id="fpsOn" aria-pressed="false">Вкл</button><button id="fpsOff" aria-pressed="true">Выкл</button></div></div>
     <div class="shint">Мелкая зелёная цифра в правом верхнем углу под кнопками: сколько кадров в секунду сейчас.</div>
     <h2>Камера</h2>
@@ -320,6 +343,18 @@
   </div>
 </div>
 <div class="pausetag" id="pauseTag" hidden>ПАУЗА</div>
+<div class="benchhud" id="benchHud" hidden><span id="benchTxt"></span><button id="benchStop">Отмена</button></div>
+<div class="benchres" id="benchRes" role="dialog" aria-modal="true" aria-labelledby="brTitle" hidden>
+  <div class="brbox">
+    <h1 id="brTitle">Тест дыма</h1>
+    <div class="brdev" id="brDev"></div>
+    <table class="brtab"><thead><tr><th>Дым</th><th>FPS</th><th>Провалы</th><th>Худший</th><th>Облаков</th></tr></thead><tbody id="brBody"></tbody></table>
+    <div class="brhint">FPS — средний. Провалы — FPS в худшие 1% кадров: именно они ощущаются как рывки. Худший — самый долгий кадр в мс. Облаков — сколько частиц дыма в среднем на экране.</div>
+    <div class="brsum" id="brSum"></div>
+    <div class="brhist" id="brHist"></div>
+    <div class="brbtns"><button class="go" id="brAgain">Ещё раз</button><button class="ghost" id="brClose">Закрыть</button></div>
+  </div>
+</div>
 <div class="fps" id="fpsEl" aria-hidden="true" hidden>— FPS</div>
 
 <div class="screen" id="scrTitle">
@@ -889,6 +924,110 @@ function updateSmoke(dt) {
     p.sp.material.opacity = Math.min(1, t * 8) * (1 - t) * 0.55;
   }
 }
+// ---------- Volumetric tyre smoke: soft lit clouds + a swirl that wraps round the rear wheels ----------
+let smokeMode = 'vol';
+try { smokeMode = localStorage.getItem('drift-smoke') === 'old' ? 'old' : 'vol'; } catch (e) {}
+const VS = { pool: [], mult: 1, base: 1100, next: 0, count: 0 };
+const volTex = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+  let seed = 7; const R = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 26; i++) {
+    const a = R() * 6.28, d = R() * 60, r = 38 + R() * 48, cx = 128 + Math.cos(a) * d, cy = 132 + Math.sin(a) * d * 0.8;
+    const g = x.createRadialGradient(cx, cy - r * 0.25, r * 0.1, cx, cy, r);
+    g.addColorStop(0, 'rgba(255,255,255,0.55)'); g.addColorStop(0.6, 'rgba(255,255,255,0.25)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.fill();
+  }
+  x.globalCompositeOperation = 'source-atop';                       // lit from above: the underside is darker
+  const sh = x.createLinearGradient(0, 30, 0, 230);
+  sh.addColorStop(0, 'rgba(255,255,255,0)'); sh.addColorStop(0.5, 'rgba(110,110,120,0.22)'); sh.addColorStop(1, 'rgba(55,55,66,0.62)');
+  x.fillStyle = sh; x.fillRect(0, 0, 256, 256);
+  x.globalCompositeOperation = 'destination-in';                    // soft edge
+  const m = x.createRadialGradient(128, 128, 40, 128, 128, 126);
+  m.addColorStop(0, 'rgba(0,0,0,1)'); m.addColorStop(0.7, 'rgba(0,0,0,0.85)'); m.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = m; x.fillRect(0, 0, 256, 256);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 2; return t;
+})();
+const vrnd = (a, b) => a + Math.random() * (b - a);
+function vsGet() {
+  const n = VS.pool.length;
+  for (let k = 0; k < n; k++) { const i = (VS.next + k) % n, q = VS.pool[i]; if (!q.alive) { VS.next = i + 1; return q; } }
+  if (n >= VS.base * VS.mult) return null;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: volTex, color: '#e9eaee', transparent: true, depthWrite: false, opacity: 0 }));
+  sp.visible = false; scene.add(sp);
+  const q = { sp, alive: false, v: new THREE.Vector3() }; VS.pool.push(q); return q;
+}
+function vsSpawn(type, W0, yaw, side, outSign) {
+  const p = vsGet(); if (!p) return;
+  p.alive = true; p.age = 0; p.type = type; p.x = W0.x; p.y = W0.y; p.z = W0.z; p.yaw = yaw; p.side = side;
+  p.j1 = Math.random() - 0.5; p.j2 = Math.random() - 0.5; p.j3 = Math.random();
+  p.sp.material.rotation = (Math.random() - 0.5) * 0.6;
+  const cy = Math.cos(yaw), sy = Math.sin(yaw);
+  if (type === 0) {                                                    // long trail behind the car
+    p.life = vrnd(4.5, 6.5); p.s0 = vrnd(1.6, 2.2); p.s1 = vrnd(6, 9.5); p.peak = 0.78;
+    const b = vrnd(2.4, 3.8), o = outSign ? outSign * vrnd(1, 2.7) : vrnd(-1.5, 1.5);
+    p.v.set(-cy * b + sy * o + vrnd(-0.7, 0.7), vrnd(0.12, 0.4), sy * b + cy * o + vrnd(-0.7, 0.7));
+  } else if (type === 1) { p.life = vrnd(1.5, 2.6); p.peak = 0.8; }      // swirl round the wheel
+  else if (type === 2) { p.life = vrnd(0.5, 0.9); p.peak = 0.42; }      // dense root at the contact patch
+  else if (type === 3) {                                               // cloud pushed out from under the body
+    p.life = vrnd(1.1, 1.9); p.s0 = vrnd(0.9, 1.3); p.s1 = vrnd(3.2, 4.6); p.peak = 0.42;
+    const b = vrnd(0.6, 1.6), o = outSign ? outSign * vrnd(2.2, 4.2) : (Math.random() < 0.5 ? -1 : 1) * vrnd(1.5, 3);
+    p.v.set(-cy * b + sy * o, vrnd(0.15, 0.45), sy * b + cy * o);
+  } else {                                                             // small puffs off the front tyres
+    p.life = vrnd(0.5, 0.95); p.s0 = vrnd(0.35, 0.5); p.s1 = vrnd(1.0, 1.5); p.peak = 0.35;
+    const b = vrnd(0.8, 1.6), o = side * vrnd(0.2, 0.7);
+    p.v.set(-cy * b + sy * o, vrnd(0.2, 0.5), sy * b + cy * o);
+  }
+  p.sp.visible = true;
+}
+function emitVolSmoke(w, u, dt, slip, outSign) {
+  const k = Math.min(1, (slip - 2.2) / 3.3), m = VS.mult;
+  const a = (u.vsAcc ??= [0, 0, 0, 0, 0]);
+  a[0] += dt * 44 * k * m; a[1] += dt * 150 * k * m; a[2] += dt * 180 * k * m;
+  a[3] += dt * 70 * k * m; a[4] += dt * 34 * k * m;
+  const yaw = w.rotation.y;
+  while (a[3] >= 1) { a[3] -= 1; vsSpawn(3, w.localToWorld(new THREE.Vector3(vrnd(-1.3, 0.4), 0, vrnd(-0.7, 0.7))), yaw, 1, outSign); }
+  if (a[4] >= 1 && u.steer && u.steer.length) {
+    const fr = u.steer.map(st => { const p = st.userData.roll.getWorldPosition(new THREE.Vector3()); p.y = w.position.y; return p; });
+    while (a[4] >= 1) { a[4] -= 1; u.vsF = ((u.vsF || 0) + 1) % fr.length; const lz = w.worldToLocal(fr[u.vsF].clone()).z; vsSpawn(4, fr[u.vsF], yaw, Math.sign(lz) || 1, outSign); }
+  } else a[4] = Math.min(a[4], 1);
+  if (a[0] < 1 && a[1] < 1 && a[2] < 1) return;
+  const n = u.spots.length;
+  const pts = u.spots.map(sp => w.localToWorld(new THREE.Vector3(sp.x + 0.1, 0, sp.z - Math.sign(sp.z) * 0.05)));   // where each rear tyre touches the ground
+  for (let ty = 0; ty < 3; ty++) while (a[ty] >= 1) { a[ty] -= 1; u.vsAlt = ((u.vsAlt || 0) + 1) % n; vsSpawn(ty, pts[u.vsAlt], yaw, Math.sign(u.spots[u.vsAlt].z) || 1, outSign); }
+}
+function updateVolSmoke(dt) {
+  let cnt = 0;
+  for (const p of VS.pool) {
+    if (!p.alive) continue;
+    p.age += dt;
+    const a = p.age, t = a / p.life;
+    if (t >= 1) { p.alive = false; p.sp.visible = false; continue; }
+    cnt++;
+    const cy = Math.cos(p.yaw), sy = Math.sin(p.yaw);
+    let x, y, z, s, op;
+    if (p.type === 0 || p.type >= 3) {
+      const f = (1 - Math.pow(p.type === 0 ? 0.35 : 0.2, a)) / (p.type === 0 ? 1.0498 : 1.25);
+      x = p.x + p.v.x * f; z = p.z + p.v.z * f; y = p.y + 0.08 + p.v.y * f + 0.075 * a * a;
+      s = p.s0 + (p.s1 - p.s0) * (1 - (1 - t) * (1 - t)); y = Math.max(y, p.y + s * 0.45);
+      op = Math.min(1, t * (p.type === 0 ? 3.5 : 5)) * (1 - t) * p.peak;
+    } else if (p.type === 1) {
+      const th = 0.35 + Math.min(a, 1) * 5.4 + p.j1 * 0.7, r = 0.34 + Math.min(a, 1.3) * 0.7 + p.j2 * 0.18;
+      const lx = -r * Math.sin(th), ly = 0.33 - r * Math.cos(th), lz = p.side * (0.05 + a * 0.5 + p.j3 * 0.18);
+      x = p.x + lx * cy + lz * sy - cy * a * 1.1; z = p.z - lx * sy + lz * cy + sy * a * 1.1; y = Math.max(p.y + ly, p.y + 0.15);
+      s = 0.7 + Math.min(a, 1.2) * 1.6 + p.j3 * 0.4; op = Math.min(1, t * 10) * (1 - t) * p.peak;
+    } else {
+      const lx = -a * 1.4, lz = p.side * (0.05 + p.j3 * 0.25);
+      x = p.x + lx * cy + lz * sy; z = p.z - lx * sy + lz * cy; y = p.y + 0.16 + a * 0.5;
+      s = 0.55 + t * 1.1 + p.j3 * 0.25; op = Math.min(1, t * 12) * (1 - t) * p.peak;
+    }
+    p.sp.position.set(x, y, z); p.sp.scale.set(s, s, s); p.sp.material.opacity = op;
+  }
+  VS.count = cnt;
+}
+function vsClear() { for (const p of VS.pool) { p.alive = false; p.sp.visible = false; } VS.count = 0; }
+function smokeClearAll() { vsClear(); for (const p of smoke) { p.alive = false; p.sp.visible = false; } }
+const smokeAliveCount = () => VS.count + (smokeMode === 'old' ? smoke.reduce((n, p) => n + (p.alive ? 1 : 0), 0) : 0);
+
 // ---------- Rubber bits flying off the rear tyres ----------
 const BITS = 500;
 const bitMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1),
@@ -1497,7 +1636,7 @@ function keyState(e, on) {
   e.preventDefault(); input[k] = on;
   document.querySelector(`.ctl[data-key="${k}"]`)?.classList.toggle('on', on);
 }
-addEventListener('keydown', e => { if (e.code === 'KeyR' && playing) { restart(); return; } if (e.code === 'Escape' && playing) { toMenu(); return; } keyState(e, true); });
+addEventListener('keydown', e => { if (BENCH.on) return; if (e.code === 'KeyR' && playing) { restart(); return; } if (e.code === 'Escape' && playing) { toMenu(); return; } keyState(e, true); });
 addEventListener('keyup', e => keyState(e, false));
 addEventListener('blur', () => { for (const k in input) input[k] = false; document.querySelectorAll('.ctl.on').forEach(el => el.classList.remove('on')); });
 document.addEventListener('contextmenu', e => e.preventDefault());
@@ -2021,8 +2160,11 @@ function carVisuals(dt, time) {
   const slip = S.rearSlip;
   const back = new THREE.Vector3(-1, 0, 0).applyQuaternion(w.quaternion).multiplyScalar(0.35);
   if (slip > 2.2) {
-    u.acc = (u.acc || 0) + dt * Math.min(40, (slip - 2.2) * 7);
-    while (u.acc >= 1) { u.acc -= 1; for (const spot of u.spots) { const p = w.localToWorld(spot.clone()); p.x += (Math.random() - .5) * .3; p.z += (Math.random() - .5) * .3; puff(p, back); } }
+    if (smokeMode === 'vol') emitVolSmoke(w, u, dt, slip, Math.abs(S.r) > 0.15 ? Math.sign(S.r) : 0);
+    else {
+      u.acc = (u.acc || 0) + dt * Math.min(40, (slip - 2.2) * 7);
+      while (u.acc >= 1) { u.acc -= 1; for (const spot of u.spots) { const p = w.localToWorld(spot.clone()); p.x += (Math.random() - .5) * .3; p.z += (Math.random() - .5) * .3; puff(p, back); } }
+    }
     if (slip > 4.5) {
       u.bitAcc = (u.bitAcc || 0) + dt * Math.min(30, slip * 3);
       while (u.bitAcc >= 1) { u.bitAcc -= 1; for (const spot of u.spots) { const p = w.localToWorld(spot.clone()); p.y = 0.06; spawnBit(p, back.clone().normalize()); } }
@@ -2319,6 +2461,116 @@ function fpsTick(ts) {
 document.getElementById('fpsOn').addEventListener('click', () => { fpsShow = true; syncFpsMeter(); });
 document.getElementById('fpsOff').addEventListener('click', () => { fpsShow = false; syncFpsMeter(); });
 syncFpsMeter();
+
+// ---- smoke settings + the smoke benchmark ----
+function syncSmoke() {
+  document.getElementById('smkOld').setAttribute('aria-pressed', String(smokeMode === 'old'));
+  document.getElementById('smkVol').setAttribute('aria-pressed', String(smokeMode === 'vol'));
+  try { localStorage.setItem('drift-smoke', smokeMode); } catch (e) {}
+}
+document.getElementById('smkOld').addEventListener('click', () => { smokeMode = 'old'; syncSmoke(); });
+document.getElementById('smkVol').addEventListener('click', () => { smokeMode = 'vol'; syncSmoke(); });
+syncSmoke();
+
+const BENCH = { on: false };
+const BSTAGES = [
+  { name: 'Обычный дым', mode: 'old', mult: 1 },
+  { name: 'Объёмный дым', mode: 'vol', mult: 1 },
+  { name: 'Объёмный ×2 (стресс)', mode: 'vol', mult: 2 } ];
+const B_WARM = 2, B_MEAS = 8;                                  // seconds: warm-up (not counted) + measured
+const benchHud = document.getElementById('benchHud'), benchTxt = document.getElementById('benchTxt'), benchRes = document.getElementById('benchRes');
+function benchStage(i) {
+  BENCH.stage = i; BENCH.t = 0; BENCH.frames = []; BENCH.counts = []; BENCH.hudT = 0;
+  smokeMode = BSTAGES[i].mode; VS.mult = BSTAGES[i].mult; smokeClearAll();
+}
+function benchStart(kind) {
+  kind = kind === 'burn' ? 'burn' : 'drift';
+  if (NET.on) { document.getElementById('benchHint').textContent = 'В режиме «Вдвоём» тест недоступен: сначала выйди на главный экран.'; return; }
+  if (!base) return;
+  closeSettings(); benchRes.hidden = true;
+  Object.assign(BENCH, { on: true, kind, saved: { mode: smokeMode, screenMode: screen }, th: 0, results: [] });
+  buildTrack('free'); placeCars();                              // empty lot, the picked car on it
+  cars.red.userData.grayT = cars.black.userData.grayT = 0;
+  for (const k of ['red', 'black']) cars[k].userData.gray.value = 0;
+  setScreen('play'); playing = true;
+  INTRO.active = false; INTRO.title = 0; introEl.hidden = true; TR.countdown = 0; msgEl.hidden = true;
+  for (const k in input) input[k] = false; SND.pause();
+  markMesh.count = 0; markNext = 0;
+  document.body.classList.add('bench'); benchHud.hidden = false;
+  benchStage(0); chaseCamera(0, true);
+}
+function benchStep(dt, time) {
+  const B = BENCH, st = BSTAGES[B.stage], real = (PACE.frameMs || 16.7) / 1000;
+  // scripted drift: the same circle, angle and speed every time
+  const R = 20, spd = 14, om = spd / R, ang = 0.62;
+  if (B.kind === 'burn') {                                     // standing still, rear wheels spinning flat out
+    S.x = 0; S.z = 0; S.yaw = 0;
+    Object.assign(S, { u: 0, v: 0, r: 0, delta: 0, throttle: 1, rearSlip: 6, wheelSpin: 5, ax: 0, ay: 0, drifting: false, hit: false, reversing: false });
+  } else {
+  B.th += om * dt;
+  S.x = R * Math.cos(B.th); S.z = R * Math.sin(B.th);
+  S.yaw = Math.atan2(-Math.cos(B.th), -Math.sin(B.th)) - ang;
+  Object.assign(S, { u: spd * Math.cos(ang), v: spd * Math.sin(ang), r: -om, delta: 0.6, throttle: 1, rearSlip: 6, wheelSpin: 4, ax: 0, ay: -spd * spd / R, drifting: true, hit: false, reversing: false });
+  }
+  B.t += real;
+  if (B.t >= B_WARM) { B.frames.push(PACE.frameMs || 16.7); B.counts.push(smokeAliveCount()); }
+  B.hudT -= real;
+  if (B.hudT <= 0) {
+    B.hudT = 0.25;
+    const left = Math.max(0, Math.ceil(B_WARM + B_MEAS - B.t));
+    benchTxt.textContent = `${B.kind === 'burn' ? 'Бернаут' : 'Тест дыма'} · ${B.stage + 1} из ${BSTAGES.length} · ${st.name} · ${B.t < B_WARM ? 'прогрев' : left + ' с'}`;
+  }
+  if (B.t >= B_WARM + B_MEAS) {
+    const f = B.frames, n = f.length || 1, sum = f.reduce((a, b) => a + b, 0) || 1;
+    const sorted = f.slice().sort((a, b) => b - a), k1 = Math.max(1, Math.ceil(n * 0.01));
+    const worst1 = sorted.slice(0, k1).reduce((a, b) => a + b, 0) / k1;
+    const c = B.counts;
+    B.results.push({ name: st.name, avg: 1000 * n / sum, low1: 1000 / worst1, worst: sorted[0] || 0, cAvg: c.length ? c.reduce((a, b) => a + b, 0) / c.length : 0, cMax: c.length ? Math.max(...c) : 0 });
+    if (B.stage + 1 < BSTAGES.length) benchStage(B.stage + 1); else benchFinish();
+  }
+}
+const benchGrade = r => r.low1 >= 40 ? 'ok' : r.low1 >= 30 ? 'mid' : 'low';
+function benchEnd() {
+  BENCH.on = false; smokeMode = BENCH.saved.mode; VS.mult = 1; smokeClearAll(); syncSmoke();
+  document.body.classList.remove('bench'); benchHud.hidden = true;
+  buildTrack(trackId); goTitle();
+}
+function benchCamera(time) {                                  // burnout: low shot on the rear wheel
+  const w = player; w.updateMatrixWorld(true);
+  const piv = w.userData.pivots.reduce((a, b) => (a && a.position.z > b.position.z ? a : b), null);
+  const wheel = piv ? piv.getWorldPosition(new THREE.Vector3()) : w.localToWorld(new THREE.Vector3(-1.3, 0.34, 0.8));
+  const lw = w.worldToLocal(wheel.clone());                   // side-on, square to the car, rear wheel slightly left of centre
+  camera.position.copy(w.localToWorld(new THREE.Vector3(lw.x - 0.9, 0.62, lw.z + 3.6)));
+  camera.lookAt(w.localToWorld(new THREE.Vector3(lw.x - 0.9, 0.5, lw.z)));
+}
+function benchFinish() {
+  const res = BENCH.results.slice(), kind = BENCH.kind;
+  benchEnd();
+  // history (last runs stay on this phone)
+  let hist = []; const hk = kind === 'burn' ? 'drift-bench-burn' : 'drift-bench';
+  try { hist = JSON.parse(localStorage.getItem(hk) || '[]'); } catch (e) {}
+  const prev = hist.slice(-3).reverse();
+  hist.push({ ts: Date.now(), r: res.map(r => [Math.round(r.avg), Math.round(r.low1)]) });
+  try { localStorage.setItem(hk, JSON.stringify(hist.slice(-8))); } catch (e) {}
+  const gl = { ok: 'g-ok', mid: 'g-mid', low: 'g-low' }, word = { ok: 'плавно', mid: 'с просадками', low: 'тяжело' };
+  const ff = v => v < 10 ? v.toFixed(1) : v.toFixed(0);
+  document.getElementById('brBody').innerHTML = res.map(r => `<tr><td>${r.name}</td><td class="${gl[benchGrade(r)]}">${ff(r.avg)}</td><td class="${gl[benchGrade(r)]}">${ff(r.low1)} · ${word[benchGrade(r)]}</td><td>${r.worst.toFixed(0)} мс</td><td>${r.cAvg.toFixed(0)} / ${r.cMax}</td></tr>`).join('');
+  const g = res.map(benchGrade);
+  document.getElementById('brSum').textContent =
+    g[1] === 'ok' ? (g[2] === 'ok' ? 'Объёмный дым идёт плавно, и запас ещё большой: можно делать дым гуще.' : 'Объёмный дым идёт плавно. Запаса на удвоение нет — усиливать можно, но не вдвое.')
+    : g[1] === 'mid' ? 'Объёмный дым идёт с просадками. Если они мешают, лучше оставить обычный или сделать объёмный легче.'
+    : 'Объёмный дым тяжёлый для этого телефона. Лучше оставить обычный или облегчить объёмный.';
+  document.getElementById('brDev').textContent = `Экран ≈ ${Math.round(1000 / PACE.per)} Гц · ${renderer.domElement.width}×${renderer.domElement.height} · масштаб ${renderer.getPixelRatio().toFixed(2)}`;
+  const fmt = h => new Date(h.ts).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' — ' + h.r.map((v, i) => `${['обычный', 'объёмный', '×2'][i]} ${v[0]}/${v[1]}`).join(' · ');
+  document.getElementById('brHist').innerHTML = prev.length ? '<b>Прошлые прогоны</b> (FPS/провалы)<br>' + prev.map(fmt).join('<br>') : '';
+  document.getElementById('brTitle').textContent = kind === 'burn' ? 'Тест бернаута' : 'Тест дыма'; BENCH.last = kind;
+  benchRes.hidden = false; document.getElementById('brAgain').focus();
+}
+document.getElementById('benchRun').addEventListener('click', () => benchStart('drift'));
+document.getElementById('burnRun').addEventListener('click', () => benchStart('burn'));
+document.getElementById('brAgain').addEventListener('click', () => benchStart(BENCH.last));
+document.getElementById('brClose').addEventListener('click', () => { benchRes.hidden = true; });
+document.getElementById('benchStop').addEventListener('click', () => { if (BENCH.on) benchEnd(); });
 
 // ---- linear tachometer (0–8000 rpm) above the steering buttons ----
 const tachEl = document.getElementById('tach'), tachBar = document.getElementById('tachBar');
@@ -2869,8 +3121,11 @@ function remoteVisuals(dt, time) {
   const slip = st.sl || 0;
   const back = new THREE.Vector3(-1, 0, 0).applyQuaternion(w.quaternion).multiplyScalar(0.35);
   if (slip > 2.2) {
-    u.acc = (u.acc || 0) + dt * Math.min(40, (slip - 2.2) * 7);
-    while (u.acc >= 1) { u.acc -= 1; for (const spot of u.spots) { const p = w.localToWorld(spot.clone()); p.x += (Math.random() - .5) * .3; p.z += (Math.random() - .5) * .3; puff(p, back); } }
+    if (smokeMode === 'vol') emitVolSmoke(w, u, dt, slip, 0);
+    else {
+      u.acc = (u.acc || 0) + dt * Math.min(40, (slip - 2.2) * 7);
+      while (u.acc >= 1) { u.acc -= 1; for (const spot of u.spots) { const p = w.localToWorld(spot.clone()); p.x += (Math.random() - .5) * .3; p.z += (Math.random() - .5) * .3; puff(p, back); } }
+    }
   }
   if (slip > 3) tyreMarks(w); else u.lastMark = [];
   // exhaust haze and pops on lift-off, heard quieter with distance
@@ -2920,15 +3175,21 @@ renderer.setAnimationLoop(ts => {
     if (++PACE.n % 30 === 0 && PACE.d.length > 20) { const a = PACE.d.slice().sort((x, y) => x - y); PACE.per = a[a.length >> 2]; }   // fast quartile ≈ the vsync period
   }
   PACE.raw = ts;
-  const want = fpsMode === '30' ? 1000 / 30 : fpsMode === '60' ? 1000 / 60 : (PACE.per < 10.5 ? PACE.per * 2 : PACE.per);
+  const fm = BENCH.on ? 'free' : fpsMode;                    // the smoke test measures what the phone can really do
+  const want = fm === '30' ? 1000 / 30 : fm === '60' ? 1000 / 60 : (PACE.per < 10.5 ? PACE.per * 2 : PACE.per);
   const skip = Math.max(1, Math.round(want / PACE.per));
   if (PACE.last > 0 && (ts - PACE.last) < PACE.per * (skip - 0.5)) return;
   const dt = PACE.last > 0 ? Math.min((ts - PACE.last) / 1000, 0.05) : 1 / 60;
+  PACE.frameMs = PACE.last > 0 ? ts - PACE.last : 16.7;
   PACE.last = ts; PACE.time += dt; fpsTick(ts);
   const time = PACE.time;
   if (!playing && msgTimer > 0) { msgTimer -= dt; if (msgTimer <= 0) msgEl.hidden = true; }
   if (player) {
-    if (playing && paused) {
+    if (playing && BENCH.on) {
+      benchStep(dt, time);
+      carVisuals(dt, time);
+      if (BENCH.kind === 'burn') benchCamera(time); else chaseCamera(dt, false);
+    } else if (playing && paused) {
       // frozen: nothing moves, the camera stays where it is
     } else if (playing) {
       wheelUpdate(dt);
@@ -2962,7 +3223,7 @@ renderer.setAnimationLoop(ts => {
   }
   const fdt = paused ? 0 : dt;
   if (playing && !paused) { SND.update(dt); updateTach(time); }
-  updateSmoke(fdt); updateBits(fdt); updateExhaust(fdt); updateCones(fdt);
+  updateSmoke(fdt); updateVolSmoke(fdt); updateBits(fdt); updateExhaust(fdt); updateCones(fdt);
   renderer.render(scene, camera);
 });
 load();
