@@ -26,6 +26,18 @@
     -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
   #stage{position:fixed;inset:0}
   #stage canvas{display:block;width:100%;height:100%}
+  /* one look for the whole scene: colour grade on the canvas + vignette, tint and film grain on top (turn off in Settings -> Screen) */
+  .grade{position:absolute;inset:0;pointer-events:none;display:none}
+  .grade i{position:absolute;inset:0}
+  body[data-look] .grade{display:block}
+  .grade .gv{background:radial-gradient(ellipse at 50% 48%,rgba(0,0,0,0) 52%,rgba(0,0,0,.42) 100%)}
+  .grade .gt{mix-blend-mode:soft-light}
+  .grade .gg{opacity:.11;mix-blend-mode:overlay;background-size:180px 180px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.4 -.2'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
+  body[data-look="day"] #stage canvas{filter:contrast(1.07) saturate(.82) sepia(.16) brightness(1.03)}
+  body[data-look="day"] .grade .gt{background:linear-gradient(180deg,rgba(255,206,140,.34),rgba(255,232,200,.10) 46%,rgba(110,92,64,.26))}
+  body[data-look="night"] #stage canvas{filter:contrast(1.08) saturate(.9) hue-rotate(8deg) brightness(1.06)}
+  body[data-look="night"] .grade .gt{background:linear-gradient(180deg,rgba(96,72,180,.36),rgba(40,60,120,.14) 50%,rgba(170,84,60,.16))}
 
   /* HUD */
   .hud{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:16px;right:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
@@ -103,6 +115,22 @@
   .pausetag{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);font:400 clamp(26px,5vw,44px) 'Russo One',sans-serif;letter-spacing:.2em;color:#fff;
     text-shadow:0 0 6px #fff,0 0 18px #9a5cff;pointer-events:none;z-index:4}
   .ctl.gas.on{background:rgba(43,191,122,.5)}
+  .gasSl{position:relative;width:clamp(64px,9vw,84px);height:calc(clamp(78px,11vw,104px) * 2 + 14px);border-radius:22px;border:2px solid rgba(255,255,255,.55);
+    background:rgba(255,255,255,.10);touch-action:none;cursor:pointer;overflow:hidden}
+  .gasSl .fill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(to top,rgba(43,191,122,.35),rgba(43,191,122,.75))}
+  .gasSl .thumb{position:absolute;left:6px;right:6px;bottom:0;height:12px;border-radius:8px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.6);transform:translateY(50%)}
+  .gasSl .tk{position:absolute;left:0;right:0;height:2px;background:rgba(255,255,255,.28)}
+  .gasSl span{position:absolute;left:0;right:0;top:8px;text-align:center;font:700 12px 'Rubik',sans-serif;letter-spacing:.06em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);pointer-events:none}
+  .gasSl.on{border-color:#fff}
+  .steerSl{display:none;position:relative;width:calc(clamp(78px,11vw,104px) * 2 + 14px);height:clamp(64px,9vw,84px);border-radius:22px;border:2px solid rgba(255,255,255,.55);
+    background:rgba(255,255,255,.10);touch-action:none;cursor:pointer;overflow:hidden}
+  .steerSl .cn{position:absolute;top:0;bottom:0;left:50%;width:2px;margin-left:-1px;background:rgba(255,255,255,.4)}
+  .steerSl .fillS{position:absolute;top:0;bottom:0;background:rgba(255,255,255,.22)}
+  .steerSl .thumbS{position:absolute;top:6px;bottom:6px;width:14px;margin-left:-7px;border-radius:8px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.6);left:50%}
+  .steerSl b{position:absolute;top:50%;transform:translateY(-50%);font:700 18px 'Rubik',sans-serif;color:rgba(255,255,255,.7);pointer-events:none}
+  .steerSl.on{border-color:#fff}
+  body.steerSlider .steerSl{display:block}
+  body.steerSlider .pad.right .ctl,body.steerSlider .wheel{display:none}
   .seg2{display:flex;gap:4px}
   .seg2 button{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:10px;padding:8px 12px;font:600 13px 'Rubik',sans-serif;cursor:pointer;min-height:40px}
   .seg2 button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#141519}
@@ -197,8 +225,8 @@
   .tname{font:400 18px 'Russo One',sans-serif;letter-spacing:.06em}
   .tpanel .lbwrap{flex:1;min-height:0;max-height:none}
   .tpanel .go{align-self:stretch}
-  .result{position:fixed;inset:0;z-index:10;display:flex;justify-content:flex-end;pointer-events:none;background:linear-gradient(to right,rgba(4,4,8,0) 35%,rgba(4,4,8,.85) 70%)}
-  .rpanel{pointer-events:auto;width:min(380px,44vw);display:flex;flex-direction:column;justify-content:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 16px) max(20px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 16px) 16px}
+  .result{position:fixed;inset:0;z-index:10;display:flex;justify-content:center;align-items:center;pointer-events:auto;background:rgba(4,4,8,.55)}
+  .rpanel{pointer-events:auto;width:min(380px,86vw);max-height:96vh;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;text-align:center;gap:6px;padding:14px 22px;border-radius:20px;background:rgba(14,14,22,.82);border:1px solid rgba(255,255,255,.18);box-shadow:0 10px 40px rgba(0,0,0,.5)}
   .rhead{font:400 clamp(22px,4vw,34px) 'Russo One',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-shadow:0 0 10px #9a5cff}
   .rtrack{color:#c9cad1;font-size:13px}
   .rbig{font:400 clamp(34px,6vw,56px) 'Russo One',sans-serif;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
@@ -320,6 +348,8 @@
     <div class="shint">30 — телефон меньше греется, батарея держит дольше. 60 — ровные 60 кадров (на экране 90 Гц получится ровно 45). Свободно — под частоту экрана: 60 или 90, на 120 Гц — 60; не ниже 45.</div>
     <div class="row"><h2>Дым</h2><div class="seg2" role="group" aria-label="Дым"><button id="smkOld" aria-pressed="false">Обычный</button><button id="smkVol" aria-pressed="true">Объёмный</button></div></div>
     <div class="shint">Объёмный: крупные мягкие клубы и закрутка дыма у задних колёс. Тяжелее для телефона — проверь тестом ниже.</div>
+    <div class="row"><h2>Цветокоррекция</h2><div class="seg2" role="group" aria-label="Цветокоррекция"><button id="gradeOn" aria-pressed="true">Вкл</button><button id="gradeOff" aria-pressed="false">Выкл</button></div></div>
+    <div class="shint">Единый «киношный» стиль: цветовой тон, виньетка и лёгкое зерно, чтобы машина, трасса и фон выглядели одним кадром. Если телефон греется или падает FPS — выключи.</div>
     <div class="row"><h2>Тест дыма</h2><button class="mute" id="benchRun">Запустить</button></div>
     <div class="shint">Тест трассы: тяжёлая карта с домами, деревьями, трибунами со зрителями, стенками из шин и фонарями. Машина проезжает круг 4 раза, каждый раз с большей детализацией: низкая → средняя → высокая → максимум.</div>
     <div class="shint" id="benchHint">Машина сама едет по кругу в заносе около 30 секунд, экран трогать не нужно. Тест замеряет FPS для трёх видов дыма и покажет, что тянет телефон.</div>
@@ -329,10 +359,10 @@
     <label for="vCam">Дальность<input type="range" id="vCam" min="0" max="100" value="50"><output for="vCam">50</output></label>
   </div>
   <div class="spage" id="pgCtl" role="tabpanel" aria-labelledby="tabCtl" hidden>
-    <div class="row"><h2>Газ</h2><div class="seg2" role="group" aria-label="Газ"><button id="gasAuto" aria-pressed="true">Авто</button><button id="gasManual" aria-pressed="false">Ручной</button></div></div>
-    <div class="shint">Ручной: слева кнопка газа, рядом ручник над тормозом.</div>
-    <div class="row"><h2>Руление</h2><div class="seg2" role="group" aria-label="Руление"><button id="stBtns" aria-pressed="true">Кнопки</button><button id="stWheel" aria-pressed="false">Руль</button></div></div>
-    <div class="shint">Руль крутится пальцем и сам возвращается в центр.</div>
+    <div class="row"><h2>Газ</h2><div class="seg2" role="group" aria-label="Газ"><button id="gasAuto" aria-pressed="true">Авто</button><button id="gasManual" aria-pressed="false">Ручной</button><button id="gasSlide" aria-pressed="false">Ползунок</button></div></div>
+    <div class="shint">Ручной: слева кнопка газа, рядом ручник над тормозом. Ползунок: тяни вверх от низа — чем выше, тем сильнее газ; отпустил — газ сброшен.</div>
+    <div class="row"><h2>Руление</h2><div class="seg2" role="group" aria-label="Руление"><button id="stBtns" aria-pressed="true">Кнопки</button><button id="stWheel" aria-pressed="false">Руль</button><button id="stSlide" aria-pressed="false">Ползунки</button></div></div>
+    <div class="shint">Руль крутится пальцем и сам возвращается в центр. Ползунки: газ снизу вверх слева, поворот влево-вправо справа — оба остаются там, где ты их оставил.</div>
     <div class="row"><h2>Физика</h2><div class="seg2" role="group" aria-label="Физика"><button id="phys1" aria-pressed="true">1</button><button id="phys2" aria-pressed="false">2</button></div></div>
     <div class="shint">1 — с помощником: в заносе колёса сами контрят, кнопки задают угол. 2 — прямой руль: колёса повторяют руль один в один, контрить нужно самому (лучше всего с рулём).</div>
   </div>
@@ -340,6 +370,7 @@
 <div class="rotate"><span>Поверни телефон горизонтально — так удобнее</span></div>
 
 <div class="pad left">
+  <div class="gasSl" id="gasSl" role="slider" aria-label="Газ" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><div class="fill" id="gasFill"></div><i class="tk" style="top:25%"></i><i class="tk" style="top:50%"></i><i class="tk" style="top:75%"></i><div class="thumb" id="gasThumb"></div><span>ГАЗ</span></div>
   <button class="ctl gas" data-key="gas" aria-label="Газ" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg>ГАЗ</button>
   <div class="col">
@@ -351,6 +382,7 @@
 </div>
 <div class="tach" id="tach" aria-hidden="true"><div class="bar" id="tachBar"></div><div class="ticks"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><b>8</b></div></div>
 <div class="pad right">
+  <div class="steerSl" id="steerSl" role="slider" aria-label="Поворот" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><div class="cn"></div><div class="fillS" id="stFill"></div><b style="left:12px">‹</b><b style="right:12px">›</b><div class="thumbS" id="stThumb"></div></div>
   <button class="ctl" data-key="left" aria-label="Руль влево">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
   <button class="ctl" data-key="right" aria-label="Руль вправо">
@@ -452,6 +484,8 @@
         <button data-track="free" aria-pressed="true">Свободный<small>вся парковка</small></button>
         <button data-track="snake" aria-pressed="false">Змейка<small>трасса из конусов</small></button>
         <button data-track="fd" aria-pressed="false">Формула Дрифт<small>гоночная трасса · гравий</small></button>
+        <button data-track="fdfast" aria-pressed="false">Формула · Скоростная<small>быстрая и прямая</small></button>
+        <button data-track="fdtech" aria-pressed="false">Формула · Техничная<small>крутые повороты</small></button>
         <button data-track="eight" aria-pressed="false">Восьмёрка<small>два круга</small></button>
         <button data-track="spiral" aria-pressed="false">Спираль ↓<small>бесконечный спуск</small></button>
       </div>
@@ -510,6 +544,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 stage.appendChild(renderer.domElement);
+{ const gd = document.createElement('div'); gd.className = 'grade'; gd.innerHTML = '<i class="gt"></i><i class="gv"></i><i class="gg"></i>'; stage.appendChild(gd); }
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#1a1c22');
@@ -1072,7 +1107,7 @@ const VSI = (() => {
       }`,
     transparent: true, depthWrite: false });
   const mesh = new THREE.Mesh(geo, mat); mesh.frustumCulled = false; mesh.renderOrder = 2; scene.add(mesh);
-  return { max, geo, pos, prm };
+  return { max, geo, pos, prm, mesh };
 })();
 function vsFlush() {
   const P = VSI.pos.array, Q = VSI.prm.array, pool = VS.pool;
@@ -1360,7 +1395,7 @@ const TAU = Math.PI * 2;
 const wrapPi = a => Math.atan2(Math.sin(a), Math.cos(a));
 // lot scenery (ground, lines, barriers, poles) lives in one group so it can be hidden underground
 const lotGroup = new THREE.Group();
-for (const o of [...scene.children]) if (o.isMesh && o !== bitMesh && o !== markMesh) lotGroup.add(o);
+for (const o of [...scene.children]) if (o.isMesh && o !== bitMesh && o !== markMesh && o !== VSI.mesh) lotGroup.add(o);   // the smoke stays in the scene (it must show on the big tracks too)
 scene.add(lotGroup);
 const hemi = scene.children.find(o => o.isHemisphereLight);
 
@@ -1707,25 +1742,53 @@ const START = { x: -30, z: 0, yaw: 0 };
 
 // ---- input: touch buttons + keyboard ----
 const input = { left: false, right: false, brake: false, hand: false, gas: false };
-let manualGas = false;
-try { manualGas = localStorage.getItem('drift-gas') === 'manual'; } catch (e) {}
+let manualGas = false, gasSlider = false;
+try { const gm = localStorage.getItem('drift-gas'); manualGas = gm === 'manual' || gm === 'slider'; gasSlider = gm === 'slider'; } catch (e) {}
+const GAS = { level: 0, held: false, pid: null, kb: false };          // slider gas: 0..1 pulled up from the bottom, springs back to 0 when released
+const gasSl = document.getElementById('gasSl'), gasFill = document.getElementById('gasFill'), gasThumb = document.getElementById('gasThumb');
 function syncGas() {
   document.getElementById('gasAuto').setAttribute('aria-pressed', String(!manualGas));
-  document.getElementById('gasManual').setAttribute('aria-pressed', String(manualGas));
-  document.querySelector('.ctl.gas').hidden = !manualGas;
+  document.getElementById('gasManual').setAttribute('aria-pressed', String(manualGas && !gasSlider));
+  document.getElementById('gasSlide').setAttribute('aria-pressed', String(gasSlider));
+  document.querySelector('.ctl.gas').hidden = !manualGas || gasSlider;
+  gasSl.hidden = !gasSlider; GAS.level = 0; GAS.held = false; gasDraw();
   document.body.classList.toggle('gasManual', manualGas);        // gas | handbrake over brake
-  try { localStorage.setItem('drift-gas', manualGas ? 'manual' : 'auto'); } catch (e) {}
+  try { localStorage.setItem('drift-gas', gasSlider ? 'slider' : manualGas ? 'manual' : 'auto'); } catch (e) {}
+}
+function gasDraw() { const p = (GAS.level * 100).toFixed(1) + '%'; gasFill.style.height = p; gasThumb.style.bottom = p; gasSl.setAttribute('aria-valuenow', String(Math.round(GAS.level * 100))); }
+function gasFromPointer(e) { const r = gasSl.getBoundingClientRect(); GAS.level = THREE.MathUtils.clamp(1 - (e.clientY - r.top) / r.height, 0, 1); gasDraw(); }
+gasSl.addEventListener('pointerdown', e => { e.preventDefault(); try { gasSl.setPointerCapture(e.pointerId); } catch (_) {} GAS.held = true; GAS.pid = e.pointerId; gasSl.classList.add('on'); gasFromPointer(e); });
+gasSl.addEventListener('pointermove', e => { if (GAS.held && e.pointerId === GAS.pid) gasFromPointer(e); });
+for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) gasSl.addEventListener(ev, () => { GAS.held = false; gasSl.classList.remove('on'); });
+function gasUpdate(dt) {
+  if (!gasSlider) return;
+  if (!GAS.held && !steerSlider) { GAS.level = Math.max(0, GAS.level - dt * 6); gasDraw(); }      // released: drops back quickly (in the sliders scheme it stays put)
+  input.gas = Math.max(GAS.level, GAS.kb ? 1 : 0) > 0.04;
 }
 // steering: two buttons or an on-screen wheel (analog)
-let steerWheel = false;
-try { steerWheel = localStorage.getItem('drift-steer') === 'wheel'; } catch (e) {}
+let steerWheel = false, steerSlider = false;
+try { const sv = localStorage.getItem('drift-steer'); steerWheel = sv === 'wheel'; steerSlider = sv === 'sliders'; } catch (e) {}
+const SS = { val: 0, x: 0, held: false, pid: null };                 // steering slider: x in -1..1 (right = +1); val is +1 for a left turn like the wheel
+const steerSl = document.getElementById('steerSl'), stFill = document.getElementById('stFill'), stThumb = document.getElementById('stThumb');
+function steerSlDraw() { const p = 50 + SS.x * 50; stThumb.style.left = p + '%'; stFill.style.left = Math.min(50, p) + '%'; stFill.style.width = Math.abs(p - 50) + '%'; steerSl.setAttribute('aria-valuenow', String(Math.round(SS.x * 100))); }
+function steerSlFromPointer(e) {
+  const r = steerSl.getBoundingClientRect(); let x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  x = THREE.MathUtils.clamp(x * 1.06, -1, 1);                          // the ends are reachable without pressing the very edge
+  SS.x = Math.abs(x) < 0.04 ? 0 : x; SS.val = -SS.x; steerSlDraw();
+}
+steerSl.addEventListener('pointerdown', e => { e.preventDefault(); try { steerSl.setPointerCapture(e.pointerId); } catch (_) {} SS.held = true; SS.pid = e.pointerId; steerSl.classList.add('on'); steerSlFromPointer(e); });
+steerSl.addEventListener('pointermove', e => { if (SS.held && e.pointerId === SS.pid) steerSlFromPointer(e); });
+for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) steerSl.addEventListener(ev, () => { SS.held = false; steerSl.classList.remove('on'); });   // stays where it was left
 const WH = { ang: 0, val: 0, held: false, pid: null, a0: 0, p0: 0, MAX: 135 };
 function syncSteer() {
-  document.getElementById('stBtns').setAttribute('aria-pressed', String(!steerWheel));
+  document.getElementById('stBtns').setAttribute('aria-pressed', String(!steerWheel && !steerSlider));
   document.getElementById('stWheel').setAttribute('aria-pressed', String(steerWheel));
+  document.getElementById('stSlide').setAttribute('aria-pressed', String(steerSlider));
   document.body.classList.toggle('steerWheel', steerWheel);
+  document.body.classList.toggle('steerSlider', steerSlider);
   input.left = input.right = false; WH.ang = 0; WH.val = 0; WH.held = false; wheelDraw();
-  try { localStorage.setItem('drift-steer', steerWheel ? 'wheel' : 'buttons'); } catch (e) {}
+  SS.x = 0; SS.val = 0; SS.held = false; steerSlDraw();
+  try { localStorage.setItem('drift-steer', steerSlider ? 'sliders' : steerWheel ? 'wheel' : 'buttons'); } catch (e) {}
 }
 const wheelEl = document.getElementById('wheel'), wheelSvg = document.getElementById('wheelSvg');
 function wheelDraw() { wheelSvg.style.transform = `rotate(${WH.ang.toFixed(1)}deg)`; wheelEl.setAttribute('aria-valuenow', String(Math.round(-WH.val * 100))); }
@@ -1754,10 +1817,12 @@ function syncPhys() {
 }
 document.getElementById('phys1').addEventListener('click', () => { physMode = 1; syncPhys(); });
 document.getElementById('phys2').addEventListener('click', () => { physMode = 2; syncPhys(); });
-document.getElementById('stBtns').addEventListener('click', () => { steerWheel = false; syncSteer(); });
-document.getElementById('stWheel').addEventListener('click', () => { steerWheel = true; syncSteer(); });
-document.getElementById('gasAuto').addEventListener('click', () => { manualGas = false; syncGas(); });
-document.getElementById('gasManual').addEventListener('click', () => { manualGas = true; syncGas(); });
+document.getElementById('stBtns').addEventListener('click', () => { steerWheel = false; steerSlider = false; syncSteer(); });
+document.getElementById('stWheel').addEventListener('click', () => { steerWheel = true; steerSlider = false; syncSteer(); });
+document.getElementById('stSlide').addEventListener('click', () => { steerWheel = false; steerSlider = true; manualGas = true; gasSlider = true; syncGas(); syncSteer(); });   // sliders scheme: gas slider too
+document.getElementById('gasAuto').addEventListener('click', () => { manualGas = false; gasSlider = false; syncGas(); });
+document.getElementById('gasManual').addEventListener('click', () => { manualGas = true; gasSlider = false; syncGas(); });
+document.getElementById('gasSlide').addEventListener('click', () => { manualGas = true; gasSlider = true; syncGas(); });
 syncGas(); syncSteer();
 document.querySelectorAll('.ctl').forEach(el => {
   const key = el.dataset.key;
@@ -1770,22 +1835,23 @@ const KEYMAP = { ArrowUp: 'gas', KeyW: 'gas', ArrowLeft: 'left', KeyA: 'left', A
 function keyState(e, on) {
   const k = KEYMAP[e.code];
   if (!k) return;
-  e.preventDefault(); input[k] = on;
+  e.preventDefault(); input[k] = on; if (k === 'gas') GAS.kb = on;
   document.querySelector(`.ctl[data-key="${k}"]`)?.classList.toggle('on', on);
 }
 addEventListener('keydown', e => { if (BENCH.on) return; if (e.code === 'KeyR' && playing) { restart(); return; } if (e.code === 'Escape' && playing) { toMenu(); return; } keyState(e, true); });
 addEventListener('keyup', e => keyState(e, false));
-addEventListener('blur', () => { for (const k in input) input[k] = false; document.querySelectorAll('.ctl.on').forEach(el => el.classList.remove('on')); });
+addEventListener('blur', () => { GAS.level = 0; GAS.held = false; GAS.kb = false; for (const k in input) input[k] = false; document.querySelectorAll('.ctl.on').forEach(el => el.classList.remove('on')); });
 document.addEventListener('contextmenu', e => e.preventDefault());
 
 // ---- car physics (single-track "bicycle" model with a Pacejka-style tyre curve) ----
+const GEAR_SCALE = { k: 1 };                                         // per-track gearing (sound only): stretches the four gear ranges
 const P = { m: 1250, Iz: 1900, a: 1.25, b: 1.25, R: 0.327, Cf: 76000, Cr: 82000, mu: 0.97,
   Fmax: 8200, Pw: 250000, vmax: 24, vdrift: 14.5, brakeF: 11000, handF: 3800, steerRate: 3.6 };
 const G = 9.81, L = P.a + P.b;
 const FZF = P.m * G * P.b / L, FZR = P.m * G * P.a / L;
 function tyre(alpha, C, D) { const B = C / (1.4 * D); return -D * Math.sin(1.4 * Math.atan(B * alpha)); }
 const S = { drifting: false, dir: 0, x: 0, z: 0, yaw: 0, u: 0, v: 0, r: 0, delta: 0, throttle: 0, ax: 0, ay: 0, wheelSpin: 0, rearSlip: 0, hit: false };
-const P2 = { yawDamp: 1.1, maxAng: 0.8, guard: 6, lock: THREE.MathUtils.degToRad(60), frontMu: 0.8, frontC: 0.75, power: 0.8 };
+const P2 = { yawDamp: 1.1, maxAng: 0.8, guard: 6, lock: THREE.MathUtils.degToRad(60), frontMu: 0.8, frontC: 0.75, power: 0.8, flick: 7, flickGrip: 0.3 };
 let physMode = 1;
 try { physMode = localStorage.getItem('drift-phys') === '2' ? 2 : 1; } catch (e) {}
 syncPhys();
@@ -1793,7 +1859,7 @@ function physicsStep(dt) {
   const sgn = S.u >= 0 ? 1 : -1, uu = Math.max(Math.abs(S.u), 1.5);
   // steering: buttons turn to full lock; with no input the wheels follow the slide (countersteer assist)
   const btn = (input.left ? 1 : 0) - (input.right ? 1 : 0);
-  const steerIn = btn !== 0 ? btn : steerWheel ? WH.val : 0;          // -1..1 (the wheel is analog)
+  const steerIn = btn !== 0 ? btn : steerWheel ? WH.val : steerSlider ? SS.val : 0;          // -1..1 (the wheel is analog)
   const sAbs = Math.abs(steerIn);
   const vel0 = Math.hypot(S.u, S.v), beta0 = Math.atan2(S.v, Math.max(Math.abs(S.u), 1));
   // "drift mode": once the rear is out, the front wheels countersteer by themselves and the buttons set the angle
@@ -1813,10 +1879,13 @@ function physicsStep(dt) {
   S.throttle = lifting ? 0 : S.drifting && !p2 ? THREE.MathUtils.clamp((P.vdrift + 1.5 - vel0) / 2, 0.25, 1)
     : S.drifting && p2 && !manualGas ? THREE.MathUtils.clamp((P.vdrift + 2 - vel0) / 2, 0.45, 1)
     : THREE.MathUtils.clamp((P.vmax + 3 - vel0) / 3, 0, 1);
+  if (gasSlider && !lifting) S.throttle *= Math.max(GAS.level, GAS.kb ? 1 : 0);          // slider: gas position scales the power
   const Fdrive = S.throttle * Math.min(P.Fmax, P.Pw / Math.max(S.u, 1));
   const Dr = P.mu * FZR * (input.hand ? 0.38 : 1);
   const Fxr = Math.min(Fdrive, Dr * 1.2);                   // arcade: a bit more push than pure grip allows
-  const DrLat = Dr * (1 - (p2 ? P2.power : 0.5) * Math.min(1, Fxr / Dr) ** 2);  // wheelspin eats rear side grip -> power oversteer (physics 2: gas steers the angle)
+  // physics 2 transition ("перекладка"): steering hard to the opposite side of the slide lets the tail swing through
+  const flick = p2 && vel0 > 4 && Math.abs(beta0) > 0.1 && steerIn * beta0 > 0 ? Math.min(1, (Math.abs(steerIn) - 0.15) / 0.5) : 0;
+  const DrLat = Dr * (1 - flick * P2.flickGrip) * (1 - (p2 ? P2.power : 0.5) * Math.min(1, Fxr / Dr) ** 2);  // wheelspin eats rear side grip -> power oversteer (physics 2: gas steers the angle)
   const af = Math.atan2(S.v + P.a * S.r, uu) - d * sgn;
   const ar = Math.atan2(S.v - P.b * S.r, uu);
   const Fyf = p2 ? tyre(af, P.Cf * P2.frontC, P.mu * FZF * P2.frontMu) : tyre(af, P.Cf, P.mu * FZF);
@@ -1850,7 +1919,8 @@ function physicsStep(dt) {
   S.r += (P.a * Fyf * Math.cos(d) - P.b * Fyr) / P.Iz * dt;
   if (physMode === 2) {
     // physics 2: only a light yaw damper keeps the car catchable; the angle is all yours
-    if (vel0 > 3) S.r -= P2.yawDamp * (S.r - S.ay / Math.max(vel0, 1)) * dt;
+    if (vel0 > 3) S.r -= P2.yawDamp * (1 - 0.85 * Math.max(0, flick)) * (S.r - S.ay / Math.max(vel0, 1)) * dt;
+    if (flick > 0) S.r += Math.sign(steerIn) * P2.flick * flick * dt;          // pendulum kick toward the new side
     // spin guard: past ~45° of slip the car is pulled back so a held gas doesn't spin you round
     const over = Math.abs(beta0) - P2.maxAng;
     if (vel0 > 4 && over > 0) S.r += Math.sign(beta0) * P2.guard * over * dt * 10;
@@ -1918,6 +1988,10 @@ const TRACK_DEFS = {
     points: [[-46, -44], [-24, -45], [-4, -42], [14, -34], [25, -20], [22, -4], [6, 4], [-14, 7], [-30, 18], [-30, 34], [-14, 44], [8, 44], [28, 38], [42, 24], [45, 6], [44, -8]] },
   fd: { name: 'Формула Дрифт', note: 'кусок гоночной трассы', width: 8, fd: true, big: 150, scale: 1.8, lead: 55, runoff: 60, gravel: 5, sunset: true,
     points: [[-42, -38], [-20, -38], [0, -38], [20, -37], [34, -30], [41, -16], [39, -2], [29, 8], [12, 12], [-6, 11.5], [-24, 12], [-31.3, 13.9], [-36.6, 19.3], [-38.5, 26.5], [-36.6, 33.7], [-31.3, 39.1], [-24, 41], [-8, 41.5], [8, 41], [24, 38], [38, 37]] },
+  fdfast: { name: 'Формула · Скоростная', note: 'быстрая и прямая · гравий', width: 10, fd: true, vmax: 36, vdrift: 21.5, gearK: 1.15, big: 340, scale: 1, lead: 55, runoff: 60, gravel: 6, sunset: true,
+    points: [[-204.2, 109.0], [-184.2, 109.0], [-164.2, 109.0], [-144.2, 109.0], [-136.9, 108.3], [-129.9, 106.1], [-123.7, 102.5], [-118.0, 97.7], [-113.7, 91.9], [-110.5, 85.3], [-101.8, 61.8], [-98.8, 55.5], [-94.5, 49.8], [-89.3, 45.1], [-83.2, 41.5], [-76.5, 39.2], [-69.7, 38.2], [-62.5, 38.6], [-55.8, 40.3], [-32.2, 48.9], [-25.5, 50.6], [-18.4, 51.0], [-11.4, 50.0], [-4.8, 47.7], [1.3, 44.1], [6.7, 39.3], [10.8, 33.7], [14.0, 27.3], [22.5, 3.8], [25.5, -2.5], [29.8, -8.2], [35.0, -12.9], [41.0, -16.5], [47.8, -18.8], [54.8, -19.8], [61.8, -19.4], [68.6, -17.7], [92.1, -9.1], [98.9, -7.4], [105.9, -7.0], [112.9, -8.0], [119.7, -10.3], [125.7, -13.9], [130.9, -18.6], [135.2, -24.3], [138.2, -30.6], [146.8, -54.1], [149.8, -60.5], [154.1, -66.1], [159.3, -70.8], [165.3, -74.4], [172.1, -76.8], [179.1, -77.8], [186.1, -77.4], [192.9, -75.6], [216.4, -67.1], [223.9, -65.2], [231.6, -64.9], [239.2, -66.1], [246.4, -68.8], [252.9, -73.0], [258.6, -78.4], [271.4, -93.7], [284.2, -109.0]] },
+  fdtech: { name: 'Формула · Техничная', note: 'крутые повороты · гравий', width: 8, fd: true, big: 150, scale: 1, lead: 55, runoff: 60, gravel: 4, sunset: true,
+    points: [[-70, -60], [-40, -60], [-14, -56], [14, -60], [44.0, -60.0], [51.0, -58.1], [56.1, -53.0], [58.0, -46.0], [56.1, -39.0], [51.0, -33.9], [44.0, -32.0], [16, -36], [-14, -32], [-44.0, -32.0], [-51.0, -30.1], [-56.1, -25.0], [-58.0, -18.0], [-56.1, -11.0], [-51.0, -5.9], [-44.0, -4.0], [-14, -8], [16, -4], [44.0, -4.0], [51.0, -2.1], [56.1, 3.0], [58.0, 10.0], [56.1, 17.0], [51.0, 22.1], [44.0, 24.0], [16, 20], [-14, 24], [-40, 24]] },
   spiral: { name: 'Спираль', note: 'бесконечный спуск', spiral: true },
   eight: { name: 'Восьмёрка', note: 'два круга вокруг меток', width: 12,
     gen() { const a = 46, pts = []; for (let i = 0; i <= 64; i++) { const t = Math.PI / 2 + i / 64 * Math.PI * 2, d = 1 + Math.sin(t) ** 2; pts.push([a * Math.cos(t) / d, a * Math.sin(t) * Math.cos(t) / d]); } return pts; } }
@@ -1995,6 +2069,12 @@ function checkerMat() {
 }
 
 // daylight look for the Formula Drift course: blue gradient sky dome, bright sun
+// night city skyline behind the parking-lot tracks (painted backdrop, always centred on the camera)
+const cityPano = (() => {
+  const t = texLoader.load('night.webp?v=1'); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; t.wrapS = THREE.RepeatWrapping;
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(230, 230, 150, 64, 1, true), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false }));
+  m.position.y = 73.6; m.rotation.y = 0.8; m.renderOrder = -1; m.visible = false; scene.add(m); return m;
+})();
 let skyDome = null, viewBig = null;                                  // viewBig: whether the big open-country view is on (only while driving; menus keep the lot)
 function syncBigView() {
   const want = !!TR.big && playing;
@@ -2006,7 +2086,7 @@ function syncBigView() {
   camera.far = want ? 900 : 300; camera.updateProjectionMatrix();
 }
 function applySky(on) {
-  if (skyDome) { scene.remove(skyDome); skyDome.geometry.dispose(); skyDome.material.map.dispose(); skyDome.material.dispose(); skyDome = null; }
+  if (skyDome) { const pn = skyDome.userData.pano; if (pn) { pn.geometry.dispose(); pn.material.map.dispose(); pn.material.dispose(); } scene.remove(skyDome); skyDome.geometry.dispose(); skyDome.material.map.dispose(); skyDome.material.dispose(); skyDome = null; }
   if (on) {
     const c = document.createElement('canvas'); c.width = 8; c.height = 256; const g = c.getContext('2d');
     const gr = g.createLinearGradient(0, 0, 0, 256);
@@ -2015,6 +2095,11 @@ function applySky(on) {
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
     skyDome = new THREE.Mesh(new THREE.SphereGeometry(700, 24, 16), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, fog: false, depthWrite: false }));
     skyDome.renderOrder = -2; skyDome.rotation.y = 0; scene.add(skyDome);
+    {                                                                  // painted backdrop: snowy ranges, forest line and clouds around the whole horizon
+      const pt = texLoader.load('pano.webp?v=1'); pt.colorSpace = THREE.SRGBColorSpace; pt.anisotropy = 4; pt.wrapS = THREE.RepeatWrapping;
+      const pano = new THREE.Mesh(new THREE.CylinderGeometry(690, 690, 336, 64, 1, true), new THREE.MeshBasicMaterial({ map: pt, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false }));
+      pano.position.y = 162; pano.rotation.y = 1.2; pano.renderOrder = -1; skyDome.add(pano); skyDome.userData.pano = pano;
+    }
     const sd = new THREE.Sprite(new THREE.SpriteMaterial({ map: (() => { const cc = document.createElement('canvas'); cc.width = cc.height = 128; const x = cc.getContext('2d'); const rg = x.createRadialGradient(64, 64, 4, 64, 64, 64); rg.addColorStop(0, 'rgba(255,255,240,1)'); rg.addColorStop(0.2, 'rgba(255,250,215,.6)'); rg.addColorStop(1, 'rgba(255,245,200,0)'); x.fillStyle = rg; x.fillRect(0, 0, 128, 128); const tt = new THREE.CanvasTexture(cc); tt.colorSpace = THREE.SRGBColorSpace; return tt; })(), fog: false, depthWrite: false, transparent: true }));
     sd.scale.set(160, 160, 1); sd.position.set(-250, 470, -160); skyDome.add(sd);
     scene.background.set('#a9d2f0'); scene.fog.color.set('#c9dcea'); scene.fog.near = 90; scene.fog.far = 420;
@@ -2032,7 +2117,8 @@ function buildTrack(id) {
   if (TR.group) { scene.remove(TR.group); TR.group.traverse(o => { o.geometry?.dispose?.(); }); TR.group = null; }
   TR.P = []; TR.T = []; TR.zones = []; TR.coneState = []; TR.N = 0; TR.gr = 0; TR.wallT = 0; TR.big = 0; TR.S0 = 0; TR.S1 = 0;
   const def = TRACK_DEFS[id];
-  ring.visible = ring2.visible = id !== 'eight' && id !== 'fd';
+  P.vmax = def.vmax || 24; P.vdrift = def.vdrift || 14.5; GEAR_SCALE.k = def.gearK || 1;                                           // top speed on this track (m/s)
+  ring.visible = ring2.visible = id !== 'eight' && !def.fd;
   if (def.spiral) spiralEnter(); else spiralExit();
   applySky(!!def.sunset);
   if (!def.spiral) { lotGroup.visible = !def.big; camera.far = def.big ? 900 : 300; camera.updateProjectionMatrix(); }
@@ -2086,7 +2172,7 @@ function buildTrack(id) {
       fr.position.set(z.cx, 0.02, z.cz); fr.rotation.y = Math.atan2(-z.dz, z.dx); grp.add(fr);
       continue;
     }
-    if (z.curved && z.mult === 2) {                                   // blue outer zones: a thin white frame following the bend
+    if (z.curved) {                                                    // outer zones (blue ×2 and orange ×3): a thin white frame following the bend
       const lo = z.sgn > 0 ? W2 - 3.9 : -(W2 - 0.3), hi = z.sgn > 0 ? W2 - 0.3 : -(W2 - 3.9), f = 0.11;
       const fm = new THREE.MeshBasicMaterial({ color: '#ffffff', side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -8, polygonOffsetUnits: -8 });
       grp.add(stripMesh(z.i0, z.i1, lo, lo + f, fm, 0.02), stripMesh(z.i0, z.i1, hi - f, hi, fm, 0.02));
@@ -2246,22 +2332,52 @@ function buildTrack(id) {
     for (let i = 0; i < luv.count; i++) luv.setXY(i, luv.getX(i) * 460, luv.getY(i) * 460);      // one texture tile every ~3 m
     const land = new THREE.Mesh(landG, pbrMat('gr', { color: '#d9c391' }));
     land.position.y = -0.15; land.receiveShadow = true; grp.add(land);
-    // distant hills
-    const hillM = new THREE.MeshLambertMaterial({ color: '#b9a57a' });
-    for (let i = 0; i < 26; i++) { const a = i / 26 * Math.PI * 2 + Math.sin(i * 7) * 0.1, d = 420 + (i * 37 % 60), h = 26 + (i * 53 % 40), w = 70 + (i * 29 % 50);
-      const hill = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), hillM); hill.scale.set(w, h, w * 0.8);
-      hill.position.set(Math.cos(a) * d, -2, Math.sin(a) * d); hill.rotation.y = a; grp.add(hill); }
-    // trees away from the course (instanced trunks and crowns)
-    let sd = 11; const rn = () => (sd = (sd * 16807) % 2147483647) / 2147483647, trees = [];
-    for (let k = 0; k < 900 && trees.length < 160; k++) {
-      const x = (rn() - 0.5) * 380, z = (rn() - 0.5) * 380; let ok = true;
-      for (let j = 0; j <= TR.N; j += 3) if (Math.hypot(TR.P[j].x - x, TR.P[j].z - z) < 22) { ok = false; break; }
-      if (ok) trees.push([x, z, 0.8 + rn() * 0.9]);
+    // trees away from the course: layered pines, round broadleaf trees and bushes (a few instanced meshes; per-tree size and colour)
+    const hsh = (x, y, z) => { const v = Math.sin(x * 12.9898 + y * 78.233 + z * 37.719) * 43758.5453; return v - Math.floor(v) - 0.5; };
+    const part = (g, base, amt, y0, y1, lo, hi) => {                       // jitter the surface, paint a dark-to-light gradient in vertex colours
+      g = g.index ? g.toNonIndexed() : g; const p = g.attributes.position, c = new Float32Array(p.count * 3);
+      for (let i = 0; i < p.count; i++) {
+        const x = p.getX(i), y = p.getY(i), z = p.getZ(i), n = hsh(Math.round(x * 50), Math.round(y * 50), Math.round(z * 50));
+        const dx = x - base[0], dz = z - base[2]; p.setXYZ(i, x + dx * n * amt, y + n * amt * 0.6, z + dz * n * amt);
+        const t = THREE.MathUtils.clamp((y - y0) / Math.max(y1 - y0, 0.01), 0, 1), v = lo + (hi - lo) * t; c[i * 3] = c[i * 3 + 1] = c[i * 3 + 2] = v;
+      }
+      g.setAttribute('color', new THREE.BufferAttribute(c, 3)); g.deleteAttribute('uv'); return g;
+    };
+    const pineParts = [];
+    for (let i = 0; i < 6; i++) {
+      const r = 2.7 * (1 - i / 6.4) + 0.35, h = 2.3 + (5 - i) * 0.05, y0 = 1.5 + i * 1.25;
+      pineParts.push(part(new THREE.ConeGeometry(r, h, 10, 1).rotateY(i * 0.62).translate(0, y0 + h / 2, 0), [0, 0, 0], 0.32 * (1 - i / 8), y0, y0 + h, 0.42, 1.0));
     }
-    const trunk = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.25, 0.35, 3, 6).translate(0, 1.5, 0), new THREE.MeshLambertMaterial({ color: '#5a4530' }), trees.length);
-    const crown = new THREE.InstancedMesh(new THREE.ConeGeometry(2.2, 6.5, 7).translate(0, 6, 0), new THREE.MeshLambertMaterial({ color: '#3f6a3a' }), trees.length);
-    trees.forEach(([x, z, sc], k) => { _m.compose(new THREE.Vector3(x, 0, z), _q.identity(), _s.set(sc, sc, sc)); trunk.setMatrixAt(k, _m); crown.setMatrixAt(k, _m); });
-    grp.add(trunk, crown);
+    const pineG = mergeGeometries(pineParts);
+    const leafParts = [[0, 4.6, 0, 2.1], [1.3, 3.9, 0.5, 1.45], [-1.2, 4.0, -0.6, 1.55], [0.3, 5.9, -0.3, 1.35], [-0.6, 3.7, 1.2, 1.3], [0.9, 4.9, -1.1, 1.25]].map(([x, y, z, r]) =>
+      part(new THREE.IcosahedronGeometry(r, 1).translate(x, y, z), [x, y, z], 0.22, 2.4, 7.2, 0.5, 1.0));
+    const leafG = mergeGeometries(leafParts);
+    const bushG = mergeGeometries([[0, 0.55, 0, 0.8], [0.8, 0.4, 0.3, 0.6], [-0.7, 0.4, -0.3, 0.65]].map(([x, y, z, r]) => part(new THREE.IcosahedronGeometry(r, 1).translate(x, y, z), [x, y, z], 0.2, 0, 1.4, 0.5, 1.0)));
+    let sd = 11; const rn = () => (sd = (sd * 16807) % 2147483647) / 2147483647, trees = [], bushes = [];
+    const farFromTrack = (x, z, d) => { for (let j = 0; j <= TR.N; j += 3) if (Math.hypot(TR.P[j].x - x, TR.P[j].z - z) < d) return false; return true; };
+    const lim = TR.big * 1.2, centers = [];
+    for (let k = 0; k < 40 && centers.length < 14; k++) { const x = (rn() - 0.5) * 2 * lim, z = (rn() - 0.5) * 2 * lim; if (farFromTrack(x, z, 40)) centers.push([x, z, rn() < 0.55]); }
+    for (let k = 0; k < 1400 && trees.length < 300; k++) {
+      const c = centers[k % centers.length], a = rn() * 6.283, d = Math.sqrt(rn()) * 42, x = c[0] + Math.cos(a) * d, z = c[1] + Math.sin(a) * d;
+      if (Math.abs(x) < TR.big - 6 && Math.abs(z) < TR.big - 6 && farFromTrack(x, z, 20)) trees.push([x, z, 0.75 + rn() * 0.95, rn() < (c[2] ? 0.75 : 0.25), rn() * 6.28]);
+    }
+    for (let k = 0; k < 500 && bushes.length < 130; k++) {
+      const j = (rn() * TR.N) | 0, p = TR.P[j], t = TR.T[j], side = rn() < 0.5 ? -1 : 1, off = TR.W / 2 + TR.gr + 7 + rn() * 26;
+      const x = p.x - t.z * side * off, z = p.z + t.x * side * off;
+      if (Math.abs(x) < TR.big - 4 && Math.abs(z) < TR.big - 4 && farFromTrack(x, z, TR.W / 2 + TR.gr + 5)) bushes.push([x, z, 0.8 + rn() * 1.0, rn() * 6.28]);
+    }
+    const pines = trees.filter(t => t[3]), leafs = trees.filter(t => !t[3]);
+    const mk = (geo, list, cols) => {
+      const m = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), Math.max(1, list.length)); m.count = list.length;
+      list.forEach((t, k) => { _m.compose(new THREE.Vector3(t[0], 0, t[1]), _q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), t[t.length - 1]), _s.set(t[2], t[2] * (0.9 + (k % 5) * 0.05), t[2])); m.setMatrixAt(k, _m); m.setColorAt(k, new THREE.Color(cols[k % cols.length])); });
+      m.frustumCulled = false; grp.add(m); return m;
+    };
+    mk(pineG, pines, ['#2f5f39', '#386b40', '#2a5533', '#42744a', '#335f3a']);
+    mk(leafG, leafs, ['#5f9640', '#75a343', '#4f8a3f', '#8aa540', '#a5a03c', '#68974a']);
+    mk(bushG, bushes.map(b => [b[0], b[1], b[2], b[3]]), ['#4f7f3a', '#5f8f42', '#6b8a3a', '#446f35']);
+    const trunk = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.22, 0.38, 3.4, 7).translate(0, 1.7, 0), new THREE.MeshLambertMaterial({ color: '#5a4530' }), Math.max(1, trees.length)); trunk.count = trees.length;
+    trees.forEach((t, k) => { _m.compose(new THREE.Vector3(t[0], 0, t[1]), _q.identity(), _s.set(t[2], t[2], t[2])); trunk.setMatrixAt(k, _m); });
+    trunk.frustumCulled = false; grp.add(trunk);
   }
   // cones along both edges (instanced; knocked ones fly off)
   const conePos = [];
@@ -2490,11 +2606,12 @@ function recordSpiral() {
   LB.add('spiral', { name: playerName || 'Игрок', car: chosen, score: pts, time: +SP.time.toFixed(1), floor: SP.maxLevel, date: Date.now() });
   refreshTrackButtons();
 }
-function restart() { if (CH.on && CH.battle) { CH.opp = CH.opp || champMyPair().opp; } recordSpiral(); SP.recorded = false; SP.shown = 0; input.brake = false; resetCar(); startRun(); if (CH.on && CH.battle) { champBotReset(); } chaseCamera(0, true); markMesh.count = 0; markNext = 0; }
+function resetSliders() { GAS.level = 0; gasDraw(); SS.x = 0; SS.val = 0; steerSlDraw(); }
+function restart() { resetSliders(); if (CH.on && CH.battle) { CH.opp = CH.opp || champMyPair().opp; } recordSpiral(); SP.recorded = false; SP.shown = 0; input.brake = false; resetCar(); startRun(); if (CH.on && CH.battle) { champBotReset(); } chaseCamera(0, true); markMesh.count = 0; markNext = 0; }
 function runAgain(fromNet) {
   if (NET.on && !fromNet) netSend({ t: 'again' });
   NET.myFin = null; NET.rFin = null;
-  setScreen('play'); playing = true; restart(); startIntro();
+  setScreen('play'); playing = true; SND.start(); restart(); startIntro();
 }
 document.getElementById('reset').addEventListener('click', () => runAgain(false));
 document.getElementById('again').addEventListener('click', () => runAgain(false));
@@ -2591,7 +2708,7 @@ const SND = (() => {
   let ctx, out, engBus, tyreBus, exBus, noiseBuf, rumbleGain, engNode, tyreNode;
   let boostNow = 0, rpm = 900, gear = 1, lastHit = 0, shiftCut = 0, sqWalk = 0;
   const E = { rpm: 900, load: 0, boost: 0, bov: false };                     // what the engine synth reads
-  const GEARS = [[0, 12], [12, 20], [20, 40]];         // speed ranges in m/s for 1st, 2nd, 3rd gear
+  const GEARS = [[0, 9], [9, 16], [16, 24], [24, 34]];   // speed ranges in m/s for 1st..4th gear (≈32 / 58 / 86 / 122 km/h)
   const g = v => v / 100;
   function applyVolumes() {
     if (!ctx) return;
@@ -2744,9 +2861,10 @@ const SND = (() => {
   }
   function update(dt) {
     const v = Math.abs(S.u);
-    // virtual 3-speed gearbox -> rpm; on the gas while sliding the revs hang high like a clutch-kicked drift car
-    let gi = GEARS.findIndex(([lo, hi]) => v < hi); if (gi < 0) gi = GEARS.length - 1;
-    const [lo, hi] = GEARS[gi];
+    // virtual 4-speed gearbox -> rpm; on the gas while sliding the revs hang high like a clutch-kicked drift car
+    const gk = GEAR_SCALE.k;
+    let gi = GEARS.findIndex(([lo, hi]) => v < hi * gk); if (gi < 0) gi = GEARS.length - 1;
+    const lo = GEARS[gi][0] * gk, hi = GEARS[gi][1] * gk;
     const frac = THREE.MathUtils.clamp((v - lo) / (hi - lo), 0, 1);
     let target = gi === 0 ? 1100 + frac * 6800 : 4700 + frac * 3200;
     if (S.throttle > 0.3 && S.rearSlip > 2) target = Math.max(target, 6400 + Math.min(1300, S.rearSlip * 110));
@@ -2818,6 +2936,15 @@ function closeSettings() {
 document.getElementById('setClose').addEventListener('click', closeSettings);
 addEventListener('keydown', e => { if (e.code === 'Escape' && !document.getElementById('sound').hidden) { e.stopImmediatePropagation(); closeSettings(); } }, true);
 // frame-rate lock: 30 / 60 / free (screen rate; 120 Hz+ -> 60)
+let gradeOn = true;
+try { gradeOn = localStorage.getItem('drift-grade') !== 'off'; } catch (e) {}
+function syncGrade() {
+  document.getElementById('gradeOn').setAttribute('aria-pressed', String(gradeOn)); document.getElementById('gradeOff').setAttribute('aria-pressed', String(!gradeOn));
+  try { localStorage.setItem('drift-grade', gradeOn ? 'on' : 'off'); } catch (e) {}
+}
+document.getElementById('gradeOn').addEventListener('click', () => { gradeOn = true; syncGrade(); });
+document.getElementById('gradeOff').addEventListener('click', () => { gradeOn = false; syncGrade(); });
+syncGrade();
 let fpsMode = 'free';
 try { fpsMode = localStorage.getItem('drift-fps') || 'free'; } catch (e) {}
 function syncFps() {
@@ -3465,6 +3592,7 @@ function showResult({ title, track, pts, timeLabel, time, place, top }) {
   document.getElementById('rRec').hidden = place !== 1;
   document.getElementById('rOppRow').hidden = !NET.on;
   setScreen('result');
+  if (!NET.on) { for (const k in input) input[k] = false; WH.held = false; SND.pause(); }
   document.getElementById('again').focus();
 }
 function resultCamera(dt) {
@@ -3527,7 +3655,7 @@ function champLoad() { try { const s = JSON.parse(localStorage.getItem('drift-ch
 const chName = id => id === 0 ? (playerName || 'Ты') : CH.st.bots[id - 1].name;
 const chColor = id => id === 0 ? CAR_DOT[CH.st.car] : BOT_LIV[CH.st.bots[id - 1].liv].color;
 function champPar() {                                     // how many points a strong run is worth on this track (temporary until the Formula Drift track)
-  const best = LB.list('snake')[0]; return Math.max(6000, best ? best.score : 12000);
+  const best = LB.list('fd')[0]; return Math.max(6000, best ? best.score : 12000);
 }
 function botScore(id) { const b = CH.st.bots[id - 1]; return Math.round(champPar() * (0.45 + 0.6 * b.skill) * (0.8 + 0.4 * Math.random())); }
 function champRound() { return CH.st.rounds.length - 1; }
@@ -3642,7 +3770,7 @@ function champRender() {
   document.getElementById('chOp').textContent = op ? chName(op) : '—';
   document.getElementById('chOpInfo').textContent = op ? `${BOT_LIV[st.bots[op - 1].liv].name} · сила ${Math.round(st.bots[op - 1].skill * 100)}` : '';
   document.getElementById('chOpSw').style.background = op ? chColor(op) : 'transparent';
-  const m = document.getElementById('chMsg'); m.textContent = CH.msg ? CH.msg.text : (done ? '' : `Заезд ${st.leg + 1} из 2 на «Змейке»: ` + (st.leg === 0 ? `${chName(me.opp)} лидер, ты едешь за ним.` : `ты лидер, ${chName(me.opp)} едет за тобой.`) + ' Очки двух заездов суммируются.'); m.className = 'chMsg ' + (CH.msg ? CH.msg.cls : '');
+  const m = document.getElementById('chMsg'); m.textContent = CH.msg ? CH.msg.text : (done ? '' : `Заезд ${st.leg + 1} из 2 на «Формуле Дрифт»: ` + (st.leg === 0 ? `${chName(me.opp)} лидер, ты едешь за ним.` : `ты лидер, ${chName(me.opp)} едет за тобой.`) + ' Очки двух заездов суммируются.'); m.className = 'chMsg ' + (CH.msg ? CH.msg.cls : '');
   CH.msg = null;
   const go = document.getElementById('chGo'); go.hidden = done; go.textContent = `На старт · ${ROUND_NAMES[r]} · заезд ${st.leg + 1}/2`;
   // round tabs + pairs
@@ -3665,7 +3793,7 @@ function champRender() {
 }
 document.getElementById('chGo').addEventListener('click', () => {
   if (!CH.st) return;
-  CH.opp = champMyPair().opp; CH.battle = true; trackId = 'snake'; buildTrack('snake'); startGame();
+  CH.opp = champMyPair().opp; CH.battle = true; trackId = 'fd'; buildTrack('fd'); startGame();
 });
 document.getElementById('chNew').addEventListener('click', () => { chosen = CH.st ? CH.st.car : chosen; champNew(); CH.view = 0; champRender(); });
 document.getElementById('backChamp').addEventListener('click', () => { CH.on = false; CH.battle = false; try { trackId = localStorage.getItem('drift-track') || 'free'; } catch (e) {} if (!TRACK_DEFS[trackId]) trackId = 'free'; buildTrack(trackId); goTitle(); });
@@ -3944,7 +4072,7 @@ const resize = () => {
   const w = stage.clientWidth, h = stage.clientHeight;
   renderer.setSize(w, h, false); camera.aspect = w / h;
   camera.fov = w < h ? 66 : h < 560 ? 50 : 55;
-  if (typeof screen !== 'undefined' && screen === 'result') camera.setViewOffset(w, h, w * 0.2, 0, w, h); else camera.clearViewOffset();
+  camera.clearViewOffset();
   camera.updateProjectionMatrix();
 };
 addEventListener('resize', resize); resize();
@@ -3977,10 +4105,10 @@ renderer.setAnimationLoop(ts => {
       benchStep(dt, time);
       carVisuals(dt, time);
       if (BENCH.kind === 'burn') benchCamera(time); else chaseCamera(dt, false);
-    } else if (playing && paused) {
+    } else if (playing && (paused || (screen === 'result' && !NET.on))) {
       // frozen: nothing moves, the camera stays where it is
     } else if (playing) {
-      wheelUpdate(dt);
+      wheelUpdate(dt); gasUpdate(dt);
       if (CH.battle) champBotStep(dt);
       trackUpdate(dt);
       if (TR.countdown > 0) accT = 0;
@@ -3988,8 +4116,8 @@ renderer.setAnimationLoop(ts => {
       score(dt);
       carVisuals(dt, time);
       if (NET.on) { remoteVisuals(dt, time); netTick(time); }
-      if (screen === 'result') resultCamera(dt);
-      else if (INTRO.active) introCamera(dt, time); else chaseCamera(dt, false);
+      if (screen === 'result') { for (const k in input) input[k] = false; input.brake = true; }
+      if (INTRO.active) introCamera(dt, time); else chaseCamera(dt, false);
     } else if (screen === 'title' || screen === 'duo' || screen === 'car') {
       // showroom: both cars nose to the camera, slow drift of the camera
       const sw = Math.sin(time * 0.25);
@@ -4010,7 +4138,12 @@ renderer.setAnimationLoop(ts => {
     for (const k of ['red', 'black']) { const u = cars[k].userData; u.gray.value += (u.grayT - u.gray.value) * Math.min(1, dt * 3); }
     spiralUpdate();
   }
-  const fdt = paused ? 0 : dt;
+  { const look = gradeOn && playing && !BENCH.on ? (TR.big ? 'day' : 'night') : '';
+    if (look !== (document.body.dataset.look || '')) { if (look) document.body.dataset.look = look; else delete document.body.dataset.look; } }
+  cityPano.visible = playing && !TR.big && !SP.on;
+  if (cityPano.visible) cityPano.position.set(camera.position.x, 73.6, camera.position.z);
+  if (skyDome) skyDome.position.set(camera.position.x, 0, camera.position.z);          // the backdrop never gets closer or further
+  const fdt = paused || (screen === 'result' && !NET.on && playing) ? 0 : dt;
   if (playing && !paused) { SND.update(dt); updateTach(time); }
   updateSmoke(fdt); updateVolSmoke(fdt); updateBits(fdt); updateExhaust(fdt); updateCones(fdt);
   renderer.render(scene, camera);
